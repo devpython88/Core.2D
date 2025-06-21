@@ -13,5 +13,6 @@ int main() {
 
     FreeTexture(ball);
     DestroyWindow(win);
+    Quit();
     return 0;
 }

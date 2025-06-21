@@ -128,7 +128,8 @@ void DestroyWindow(Window *win)
 void Quit()
 {
     Log("Uninitializing SDL...");
-    if (SDL_WasInit(SDL_INIT_VIDEO)) SDL_Quit();
+    IMG_Quit();
+    SDL_Quit();
 }
 
 // Update timing variables for delta time calculation
