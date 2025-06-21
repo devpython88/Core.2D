@@ -4,33 +4,36 @@
 
 #include <stdbool.h>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <stdio.h>
 #include <stdarg.h>
-
-
-
-
-
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-    
-// PREPROCESSER MACROS
 
+// PREPROCESSOR MACROS
+
+// Allocates memory for a single object of type
 #define ALLOCATE(type) (type*)malloc(sizeof(type))
+
+// Allocates memory for an array of 'size' elements of type
 #define ARR_ALLOC(type, size) (type*)malloc(size * sizeof(type))
+
+// Resizes an array to 'newsize' elements of type
 #define ARR_RESIZE(arr, type, newsize) (type*)realloc(arr, newsize * sizeof(type))
+
+// Frees memory allocated for an array
 #define ARR_DESTROY(arr) free(arr)
-
-
 
 // COLORS
 
+// Represents an RGBA color
 typedef struct Color {
     Uint8 r, g, b, a;
 } Color;
 
+// Enum for default color indices
 enum {
     RED,
     GREEN,
@@ -47,32 +50,29 @@ enum {
     GRAY
 };
 
+// Array of default colors
 extern const Color defaultColors[];
 
-
-
 // DELTA TIME
+
+// Stores current and last time for delta time calculation
 extern Uint64 TIME_NOW, TIME_LAST;
-
-
-
-
-
-
 
 // CAMERA
 
+// Represents a camera with position and zoom
 typedef struct Camera {
     int targetX, targetY;
     float zoom;
 } Camera;
 
+// Pointer to the current camera and camera usage flag
 extern Camera* currentCamera;
 extern bool useCamera;
 
-
-
 // WINDOW
+
+// Represents a window with SDL objects and FPS
 typedef struct Window {
     SDL_Window* window;
     SDL_Renderer* renderer;
@@ -81,84 +81,136 @@ typedef struct Window {
 } Window;
 
 
+// TEXTURES
+
+typedef struct Texture {
+    SDL_Texture* texture;
+    int width, height;
+} Texture;
+
 // SHAPES
+
+// Rectangle shape
 typedef struct Rectangle {
     int x, y, width, height;
 } Rectangle;
 
+// Circle shape
 typedef struct Circle {
     int x, y, radius;
 } Circle;
 
-
 // MATH-RELATED
 
+// 2D integer vector
 typedef struct Vector2i {
     int x, y;
 } Vector2i;
 
+// 2D float vector
 typedef struct Vector2f {
     float x, y;
 } Vector2f;
 
 // LOGGING
 
+// Logs a formatted message
 void Log(const char* format, ...);
-void Err(const char* format, ...);
 
+// Logs a formatted error message
+void Err(const char* format, ...);
 
 // WINDOW-RELATED FUNCTIONS
 
-
-
+// Creates a new window
 Window* NewWindow(const char* title, int width, int height, int fps);
 
+// Checks if the window is open
 bool WindowIsOpen(Window* win);
 
+// Destroys a window
 void DestroyWindow(Window* win);
+
+// Quits the application
 void Quit();
 
+// Updates delta time values
 void UpdateDeltaTime();
+
+// Gets the current delta time in seconds
 double GetDeltaTime();
-
-
-
 
 // CAMERA RELATED FUNCTIONS
 
+// Gets position relative to the camera
+Vector2i GetCameraRelativePosition(int x, int y);
 
-Vector2i GetCameraRelativePosition(float x, float y);
+// Gets size based on the camera zoom, Returns as-is if failed
+Vector2i GetCameraRelativeSize(int w, int h);
+
+// Enables camera usage
 void EnableCamera();
+
+// Disables camera usage
 void DisableCamera();
+
+// Frees the current camera
 void FreeCamera();
+
+// Sets a new camera
 void SetCamera(Camera* newCam);
 
 // RENDER-RELATED FUNCTIONS
 
-
-
-
+// Sets the renderer color
 void RenderSetColor(Window* win, Color color);
+
+// Fills the window with a color
 void RenderFill(Window* win, Color color);
+
+// Fills a rectangle with a color
 void RenderFillRect(Window* win, Rectangle rec, Color c);
+
+// Draws rectangle lines
 void RenderLinesRect(Window* win, Rectangle rec, Color c);
+
+// Fills a circle with a color
 void RenderFillCircle(Window* win, Circle circle, Color c);
+
+// Draws a point
 void RenderDrawPoint(Window* win, int x, int y, Color c);
+
+// Draws a line between two points
 void RenderDrawLine(Window* win, Vector2i start, Vector2i end, Color c);
+
+// Draws a entire texture
+void RenderDrawTexture(Window* win, int x, int y, Texture* texture);
+
+// Draw a cutout
+void RenderDrawTextureEx(Window* win, Vector2i pos, Texture* texture, Rectangle cutout);
+
+// Presents the rendered frame
 void RenderShow(Window* win);
-
-
-
-
 
 // INPUT-RELATED FUNCTIONS
 
+// Gets the current scancode from input
 SDL_Scancode GetScancode(Window* win);
+
+// Gets the current keycode from input
 SDL_Keycode GetKeycode(Window* win);
 
 
 
+// TEXTURE-RELATED FUNCTIONS
 
+int InitializeImageSubsystemForPNG();
+int InitializeImageSubsystemForJPEG();
+
+Texture* NewTexture(Window* win, const char* filePath, int width, int height);
+Texture* NewBitmapTexture(Window* win, const char* filePath, int width, int height);
+
+void FreeTexture(Texture* texture);
 
 #ifdef __cplusplus
 }
