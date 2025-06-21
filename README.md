@@ -4,6 +4,7 @@ Core is a replacement for my old game library (nova.h), It is made in C which me
 
 Core is built ontop of SDL2 and adds many features that SDL2 doesn't have (for ex. Camera) Here is a example of loading a texture:
 
+```cpp
 #include "core2d.h"
 
 int main() {
@@ -23,3 +24,4 @@ int main() {
     Quit();
     return 0;
 }
+```
