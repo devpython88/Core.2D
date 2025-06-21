@@ -7,9 +7,47 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+
+
+
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+    
+// PREPROCESSER MACROS
+
+#define ALLOCATE(type) (type*)malloc(sizeof(type))
+#define ARR_ALLOC(type, size) (type*)malloc(size * sizeof(type))
+#define ARR_RESIZE(arr, type, newsize) (type*)realloc(arr, newsize * sizeof(type))
+#define ARR_DESTROY(arr) free(arr)
+
+
+
+// COLORS
+
+typedef struct Color {
+    Uint8 r, g, b, a;
+} Color;
+
+enum {
+    RED,
+    GREEN,
+    BLUE,
+    YELLOW,
+    PURPLE,
+    PINK,
+    BLACK,
+    WHITE,
+    BROWN,
+    ORANGE,
+    CYAN,
+    MAGENTA,
+    GRAY
+};
+
+extern const Color defaultColors[];
 
 
 
@@ -22,6 +60,17 @@ extern Uint64 TIME_NOW, TIME_LAST;
 
 
 
+// CAMERA
+
+typedef struct Camera {
+    int targetX, targetY;
+    float zoom;
+} Camera;
+
+extern Camera* currentCamera;
+extern bool useCamera;
+
+
 
 // WINDOW
 typedef struct Window {
@@ -31,10 +80,6 @@ typedef struct Window {
     int fps;
 } Window;
 
-// COLOR
-typedef struct Color {
-    Uint8 r, g, b, a;
-} Color;
 
 // SHAPES
 typedef struct Rectangle {
@@ -71,11 +116,22 @@ Window* NewWindow(const char* title, int width, int height, int fps);
 bool WindowIsOpen(Window* win);
 
 void DestroyWindow(Window* win);
+void Quit();
 
 void UpdateDeltaTime();
 double GetDeltaTime();
 
 
+
+
+// CAMERA RELATED FUNCTIONS
+
+
+Vector2i GetCameraRelativePosition(float x, float y);
+void EnableCamera();
+void DisableCamera();
+void FreeCamera();
+void SetCamera(Camera* newCam);
 
 // RENDER-RELATED FUNCTIONS
 
@@ -94,6 +150,11 @@ void RenderShow(Window* win);
 
 
 
+
+// INPUT-RELATED FUNCTIONS
+
+SDL_Scancode GetScancode(Window* win);
+SDL_Keycode GetKeycode(Window* win);
 
 
 
