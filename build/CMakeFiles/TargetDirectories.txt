@@ -1,0 +1,4 @@
+/c/Sadik/core.2d/build/CMakeFiles/core2d.dir
+/c/Sadik/core.2d/build/CMakeFiles/test.dir
+/c/Sadik/core.2d/build/CMakeFiles/edit_cache.dir
+/c/Sadik/core.2d/build/CMakeFiles/rebuild_cache.dir
