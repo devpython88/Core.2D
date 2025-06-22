@@ -148,6 +148,8 @@ void Quit()
     Log("Uninitializing SDL...");
     IMG_Quit();
     TTF_Quit();
+    Mix_Quit();
+    Mix_CloseAudio();
     SDL_Quit();
 }
 

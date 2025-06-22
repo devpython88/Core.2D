@@ -6,6 +6,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 #include <stdio.h>
 #include <stdarg.h>
 
@@ -26,6 +27,12 @@ extern "C" {
 
 // Frees memory allocated for an array
 #define ARR_DESTROY(arr) free(arr)
+
+// alias for inifnite loops
+#define INF_LOOP -1
+
+// alias to find nearest available channel
+#define NEAREST_AVAILABLE_CHANNEL -1
 
 // COLORS
 
@@ -81,6 +88,16 @@ typedef struct Window {
     int fps;
 } Window;
 
+
+// SOUNDS
+
+typedef struct Sound {
+    Mix_Chunk* chunk;
+} Sound;
+
+typedef struct Music {
+    Mix_Music* content;
+} Music;
 
 // TEXTURES
 
@@ -252,6 +269,25 @@ Text* NewTextEx(Window* win, TextFont* font, const char* text, Color color, bool
 // Free stuff
 void FreeText(Text* text);
 void FreeTextFont(TextFont* font);
+
+
+// SOUND-RELATED
+
+int InitializeSFXSubsystem(int frequency, Uint16 format, int channels, int chunksize);
+int InitializeSFXFor(int format);
+
+Music* NewMusicStream(const char* path);
+Sound* NewSound(const char* path);
+
+void FreeMusicStream(Music* music);
+void FreeSound(Sound* sound);
+
+void PlayMusicStream(Music* music, int loops);
+bool PlayingMusic();
+void PauseMusic();
+void ResumeMusic();
+
+void PlaySound(Sound* sound, int channel, int loops);
 
 #ifdef __cplusplus
 }

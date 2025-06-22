@@ -12,4 +12,4 @@ add_library(core2d STATIC ${CORE2D_SRC})
 
 add_executable(test ${MAIN})
 
-target_link_libraries(test core2d SDL2 SDL2_image SDL2_ttf)
+target_link_libraries(test core2d SDL2 SDL2_image SDL2_ttf SDL2_mixer)

@@ -70,3 +70,4 @@ void FreeTextFont(TextFont *font)
     TTF_CloseFont(font->font);
     free(font);
 }
+
