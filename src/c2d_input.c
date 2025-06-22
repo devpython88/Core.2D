@@ -26,10 +26,16 @@
 
 SDL_Scancode GetScancode(Window *win)
 {
-    return win->event.key.keysym.scancode;
+    return win->event->key.keysym.scancode;
 }
 
 SDL_Keycode GetKeycode(Window *win)
 {
-    return win->event.key.keysym.sym;
+    return win->event->key.keysym.sym;
+}
+
+bool GetPressed(Window *win, SDL_Keycode keycode)
+{
+    return win->event->type == SDL_KEYDOWN
+        && GetKeycode(win) == keycode;
 }

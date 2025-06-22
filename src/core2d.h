@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 #include <stdio.h>
 #include <stdarg.h>
 
@@ -76,7 +77,7 @@ extern bool useCamera;
 typedef struct Window {
     SDL_Window* window;
     SDL_Renderer* renderer;
-    SDL_Event event;
+    SDL_Event* event;
     int fps;
 } Window;
 
@@ -87,6 +88,21 @@ typedef struct Texture {
     SDL_Texture* texture;
     int width, height;
 } Texture;
+
+
+// TEXT
+
+typedef struct TextFont {
+    TTF_Font* font;
+} TextFont;
+
+
+typedef struct Text {
+    SDL_Texture* tex;
+    int width;
+    int height;
+} Text;
+
 
 // SHAPES
 
@@ -189,6 +205,9 @@ void RenderDrawTexture(Window* win, int x, int y, Texture* texture);
 // Draw a cutout
 void RenderDrawTextureEx(Window* win, Vector2i pos, Texture* texture, Rectangle cutout);
 
+// Draw text
+void RenderDrawText(Window* win, Text* text, int x, int y);
+
 // Presents the rendered frame
 void RenderShow(Window* win);
 
@@ -199,6 +218,9 @@ SDL_Scancode GetScancode(Window* win);
 
 // Gets the current keycode from input
 SDL_Keycode GetKeycode(Window* win);
+
+// Returns whether that key was pressed
+bool GetPressed(Window* win, SDL_Keycode keycode);
 
 
 
@@ -211,6 +233,25 @@ Texture* NewTexture(Window* win, const char* filePath, int width, int height);
 Texture* NewBitmapTexture(Window* win, const char* filePath, int width, int height);
 
 void FreeTexture(Texture* texture);
+
+
+
+
+// Font-RELATED FUNCTIONS
+
+// Initialize font susbsystem, returns 0 on success
+int InitializeFontSubsystem();
+
+// Initialize a text font, returns null on fail
+TextFont* NewTextFont(const char* path, int fontSize);
+
+// Initialize text, returns null on fail
+Text* NewText(Window* win, TextFont* font, const char* text, Color color);
+Text* NewTextEx(Window* win, TextFont* font, const char* text, Color color, bool blend);
+
+// Free stuff
+void FreeText(Text* text);
+void FreeTextFont(TextFont* font);
 
 #ifdef __cplusplus
 }

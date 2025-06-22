@@ -73,11 +73,19 @@ Window *NewWindow(const char *title, int width, int height, int fps)
         return NULL;
     }
 
-    SDL_Event event;
+    SDL_Event* event = (SDL_Event*)malloc(sizeof(SDL_Event));
 
     Log("Finalizing window...");
 
     Window* cWin = (Window*)malloc(sizeof(Window));
+
+    if (cWin == NULL){
+        Err("Failed to initialize core.2d window!");
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(window);
+        return NULL;
+    }
+
     cWin->window = window;
     cWin->renderer = renderer;
     cWin->fps = fps;
@@ -86,6 +94,15 @@ Window *NewWindow(const char *title, int width, int height, int fps)
     Log("Initializing default camera...");
 
     Camera* cam = (Camera*)malloc(sizeof(Camera));
+
+    if (cam == NULL){
+        Err("Failed to initialize core.2d camera!");
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(window);
+        free(cWin);
+        return NULL;
+    }
+
     cam->targetX = 0;
     cam->targetY = 0;
     cam->zoom = 1.0f;
@@ -99,11 +116,11 @@ Window *NewWindow(const char *title, int width, int height, int fps)
 bool WindowIsOpen(Window *win)
 {
     // fetch event
-    SDL_PollEvent(&win->event);
+    SDL_PollEvent(win->event);
     // window is open is called every frame and if we poll event here, that means user aint have to
 
     // check if its open
-    return win->event.type != SDL_QUIT;
+    return win->event->type != SDL_QUIT;
 }
 
 // Destroy window, renderer, and camera, and free memory
@@ -121,6 +138,7 @@ void DestroyWindow(Window *win)
     SDL_DestroyWindow(win->window);
 
     Log("Freeing window...");
+    free(win->event);
     free(win);
 }
 
@@ -129,6 +147,7 @@ void Quit()
 {
     Log("Uninitializing SDL...");
     IMG_Quit();
+    TTF_Quit();
     SDL_Quit();
 }
 
@@ -228,7 +247,9 @@ void RenderDrawTexture(Window *win, int x, int y, Texture *texture)
 {
     if (texture == NULL) return;
 
-    const SDL_Rect destRec = { x, y, texture->width, texture->height };
+    Vector2i newPos = GetCameraRelativePosition(x, y);
+    Vector2i newSize = GetCameraRelativeSize(texture->width, texture->height);
+    const SDL_Rect destRec = { newPos.x, newPos.y, newSize.x, newSize.y };
 
     SDL_RenderCopy(
         win->renderer,
@@ -242,8 +263,11 @@ void RenderDrawTextureEx(Window *win, Vector2i pos, Texture *texture, Rectangle 
 {
     if (texture == NULL) return;
 
+    Vector2i newPos = GetCameraRelativePosition(pos.x, pos.y);
+    Vector2i newSize = GetCameraRelativeSize(texture->width, texture->height);
+
     SDL_Rect srcRec = { cutout.x, cutout.y, cutout.width, cutout.height };
-    SDL_Rect destRec = { pos.x, pos.y, texture->width, texture->height };
+    SDL_Rect destRec = { newPos.x, newPos.y, newSize.x, newSize.y };
 
     SDL_RenderCopy(
         win->renderer,
@@ -251,6 +275,18 @@ void RenderDrawTextureEx(Window *win, Vector2i pos, Texture *texture, Rectangle 
         &srcRec,
         &destRec
     );
+}
+
+void RenderDrawText(Window *win, Text *text, int x, int y)
+{
+    Vector2i newPos = GetCameraRelativePosition(x, y);
+    Vector2i newSize = GetCameraRelativeSize(text->width, text->height);
+
+    const SDL_Rect destRec = { newPos.x, newPos.y, newSize.x, newSize.y };
+
+    SDL_RenderCopy(win->renderer,
+        text->tex, NULL,
+        &destRec);
 }
 
 // Present the rendered frame and delay to maintain FPS
