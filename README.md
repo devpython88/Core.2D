@@ -25,3 +25,28 @@ int main() {
     return 0;
 }
 ```
+
+
+
+
+### Setting up nova
+If you use MSYS2 or Linux then you can simply download the prebuilt-x64-binaries
+
+However if you use a different system then you have to use a different approach.
+
+1. Clone the repository
+`git clone https://github.com/devpython88/core.2d.git`
+
+2. Install these dependencies
+You need to install the following dependencies:
+SDL2, SDL2_image, SDL2_ttf, SDL2_mixer
+
+3. Run `configure`
+For windows:
+`configure.bat dist X Y`
+Replace `X` with whatever generator you use, If the generator name has  spaces then put the name in double-quotes
+Replace `Y` with the executable for your generator (ex. make for Unix Makefiles)
+
+For UNIX (macOS, Linux):
+`configure.sh dist X Y no`
+Same as above.

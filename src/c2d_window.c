@@ -329,3 +329,27 @@ void RenderShow(Window *win)
     SDL_RenderPresent(win->renderer);
     SDL_Delay(1000 / win->fps);
 }
+
+bool CheckCollisionAABB(int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2)
+{
+    return (
+        x1 < x2 + w2 &&
+        y1 < y2 + h2 &&
+        x1 + w1 > x2 &&
+        y1 + h1 > y2
+    );
+}
+
+bool CheckCollisionCircleRec(int x1, int y1, int r1, int x2, int y2, int w2, int h2)
+{
+    // Find the closest point on the rectangle to the circle center
+    int closestX = fmax(x2, fmin(x1, x2 + w2));
+    int closestY = fmax(y2, fmin(y1, y2 + h2));
+
+    // Calculate the distance between the circle's center and this closest point
+    int dx = x1 - closestX;
+    int dy = y1 - closestY;
+
+    // If the distance is less than the circle's radius, they are colliding
+    return (dx * dx + dy * dy) <= (r1 * r1);
+}

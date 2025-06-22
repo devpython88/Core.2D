@@ -20,3 +20,8 @@ And to get the scroll, you can use the global `Vector2i mouseScroll`.
 
 ## How to get more event info
 To get more event info, you can simply access the `SDL_Event* event` variable in the `Window` struct.
+
+
+## Delta time
+You can use `GetDeltaTime` to get the delta time.
+Make sure to call `UpdateDeltaTime` every frame.

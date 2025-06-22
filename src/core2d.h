@@ -241,6 +241,17 @@ void RenderDrawText(Window* win, Text* text, int x, int y);
 // Presents the rendered frame
 void RenderShow(Window* win);
 
+
+// COLLISION-RELATED FUNCTIONS
+
+
+// check rectangle to rectangle collision
+bool CheckCollisionAABB(int x1, int y1, int w1, int h1,
+    int x2, int y2, int w2, int h2);
+
+// check circle to ectangle collision
+bool CheckCollisionCircleRec(int x1, int y1, int r1, int x2, int y2, int w2, int h2);
+
 // INPUT-RELATED FUNCTIONS
 
 extern Vector2i mousePosition;

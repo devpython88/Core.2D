@@ -185,3 +185,9 @@ Core auto-inits and enables a camera on startup, To access it, you can use the `
 `void FreeCamera()`: Uninit camera
 
 `void SetCamera(Camera* newCam)`: Set new camera
+
+Collisiion:
+
+`bool CheckCollisionAABB(int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2)`: check bounding box collision
+
+`bool CheckCollisionCircleRec(int x1, int y1, int r1, int x2, int y2, int w2, int h2)`: check circle rec collision
