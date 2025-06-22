@@ -58,3 +58,20 @@ void FreeTexture(Texture *texture)
     SDL_DestroyTexture(texture->texture);
     free(texture);
 }
+
+Spritesheet *NewSpritesheet(Texture *tex, int frameWidth, int frameHeight)
+{
+    Spritesheet* sheet = (Spritesheet*)malloc(sizeof(Spritesheet));
+    sheet->col = 0;
+    sheet->row = 0;
+    sheet->frameHeight = frameHeight;
+    sheet->frameWidth = frameWidth;
+    sheet->tex = tex;
+
+    return sheet;
+}
+
+void FreeSpritesheet(Spritesheet *sheet)
+{
+    free(sheet);
+}

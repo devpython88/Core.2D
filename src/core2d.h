@@ -32,6 +32,7 @@ extern "C" {
 #define INF_LOOP -1
 
 // alias to find nearest available channel
+
 #define NEAREST_AVAILABLE_CHANNEL -1
 
 // COLORS
@@ -107,6 +108,13 @@ typedef struct Texture {
 } Texture;
 
 
+typedef struct Spritesheet {
+    Texture* tex;
+    int frameWidth, frameHeight;
+    int row, col;
+} Spritesheet;
+
+
 // TEXT
 
 typedef struct TextFont {
@@ -140,6 +148,7 @@ typedef struct Vector2i {
     int x, y;
 } Vector2i;
 
+
 // 2D float vector
 typedef struct Vector2f {
     float x, y;
@@ -157,6 +166,7 @@ void Err(const char* format, ...);
 
 // Creates a new window
 Window* NewWindow(const char* title, int width, int height, int fps);
+Window* NewWindowEx(SDL_Window* sdlW, SDL_Renderer* sdlR, SDL_Event* sdlE);
 
 // Checks if the window is open
 bool WindowIsOpen(Window* win);
@@ -222,6 +232,9 @@ void RenderDrawTexture(Window* win, int x, int y, Texture* texture);
 // Draw a cutout
 void RenderDrawTextureEx(Window* win, Vector2i pos, Texture* texture, Rectangle cutout);
 
+// Draw a spritesheet
+void RenderDrawSpritesheet(Window* win, int x, int y, Spritesheet* sheet);
+
 // Draw text
 void RenderDrawText(Window* win, Text* text, int x, int y);
 
@@ -230,6 +243,9 @@ void RenderShow(Window* win);
 
 // INPUT-RELATED FUNCTIONS
 
+extern Vector2i mousePosition;
+extern Vector2i mouseScroll;
+
 // Gets the current scancode from input
 SDL_Scancode GetScancode(Window* win);
 
@@ -237,7 +253,13 @@ SDL_Scancode GetScancode(Window* win);
 SDL_Keycode GetKeycode(Window* win);
 
 // Returns whether that key was pressed
-bool GetPressed(Window* win, SDL_Keycode keycode);
+bool IsKeyPressed(Window* win, SDL_Keycode keycode);
+
+// Returns whether that mouse button was pressed
+bool IsMousePressed(Window* win, Uint8 button);
+
+// Returns the pressed mouse button or NULL if no button pressed
+Uint8 GetMousePressed(Window* win);
 
 
 
@@ -251,7 +273,10 @@ Texture* NewBitmapTexture(Window* win, const char* filePath, int width, int heig
 
 void FreeTexture(Texture* texture);
 
+// SPRITESHEET RELATED
 
+Spritesheet* NewSpritesheet(Texture* tex, int frameWidth, int frameHeight);
+void FreeSpritesheet(Spritesheet* sheet);
 
 
 // Font-RELATED FUNCTIONS
@@ -288,6 +313,10 @@ void PauseMusic();
 void ResumeMusic();
 
 void PlaySound(Sound* sound, int channel, int loops);
+
+
+
+
 
 #ifdef __cplusplus
 }

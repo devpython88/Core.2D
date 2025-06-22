@@ -44,7 +44,7 @@ That is it, Developers coming from raylib might get raylib-vibes since the synta
 ## Textures
 Loading textures is also really simple, Since core handles surfaces and freeing behind the scenes, You don't have to do much
 
-1. Initialize the image subsystem
+### 1. Initialize the image subsystem
 ```cpp
 if (InitializeImageSubsystemForPNG() != 0){
     return 1; // escape when error
@@ -76,43 +76,112 @@ FreeTexture(texture)
 ```
 
 
-## Cheatsheat for Shapes
+## Spritesheets
+
+Spritesheets are simple structs that abstract the calculations needed for frame-based animation
+
+To create a spritesheet, follow these steps (Make sure you [initialize the subsystem](#1-initialize-the-image-subsystem))
+1. Make a instance
+```cpp
+Spritesheet* sheet = NewSpritesheet(pointerToYourTexture, frameWidth, frameHeight);
+```
+
+2. Modify row and col
+```cpp
+sheet.row++;
+sheet.col++;
+```
+
+3. Draw
+```cpp
+RenderDrawSpritesheet(win, sheet, x, y);
+```
+
+4. Free
+```cpp
+FreeSpritesheet(sheet);
+FreeTexture(yourTexture);
+```
+
+
+## Integration
+If you want to integrate core into your SDL2 project. But don't know what to do when core needs a `Window*`
+
+Well, to make a window by using your existing SDL2 variables, Use `NewWindowEx`
+
+```cpp
+Window* win = NewWindowEx(sdlWindow, sdlRenderer, sdlEvent) // make sure all are pointers or just add `&`
+```
+
+Make sure to free the window at the end
+```cpp
+free(win);
+```
+
+
+## Cheatsheat
 
 Structs for shapes:
+
 `Rectangle`:
+
 `int x, int y`: Position
+
 `int width, int height`: Size
 
+
+
 `Circle`:
+
 `int x, int y`: Position
+
 `int radius`: Radius
 
 Structs for math:
+
 `Vector2i`:
+
 `int x, y`: Values
 
 `Vector2f`:
+
 `float x, y`: Values
 
 
 Draw functions:
+
 `void RenderSetColor(Window* win, Color color)`: Change the render draw color
+
 `void RenderFill(Window* win, Color color)`: Fill the screen
+
 `void RenderFillRect(Window* win, Rectangle rec, Color c)`: Draw a filled rectangle
+
 `void RenderLinesRect(Window* win, Rectangle rec, Color c)`: Draw a outlined rectangle
+
 `void RenderFillCircle(Window* win, Circle circle, Color c)`: Draw a filled circle
+
 `void RenderDrawPoint(Window* win, int x, int y, Color c)`: Draw a point
+
 `void RenderDrawLine(Window* win, Vector2i start, Vector2i end, Color c)`: Draw a line
+
 `void RenderDrawTexture(Window* win, int x, int y, Texture* texture)`: Draw a texture
+
 `void RenderDrawTextureEx(Window* win, Vector2i pos, Texture* texture, Rectangle cutout)`: Draw a cutout from a texture (the cutout rect's position and size are relative to the texture, so think of it as a frame rect)
+
 `void RenderShow(Window* win)`: Show the drawn contents
 
 Camera:
 Core auto-inits and enables a camera on startup, To access it, you can use the `currentCamera` pointer.
 
+
 `Vector2i GetCameraRelativePosition(int x, int y)`: Get position relative to camera, returns the exact position if failed
+
 `Vector2i GetCameraRelativeSize(int w, int h)`: Get size based on camera zoom, Use with the previous function since otherwise it wont look like zooming
+
 `void EnableCamera()`: Enable camera
+
 `void DisableCamera()`: Disable camera
+
 `void FreeCamera()`: Uninit camera
+
 `void SetCamera(Camera* newCam)`: Set new camera

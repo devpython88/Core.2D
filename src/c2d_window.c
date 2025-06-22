@@ -1,5 +1,8 @@
 #include "core2d.h"
 
+Vector2i mousePosition = { 0, 0 };
+Vector2i mouseScroll = { 0, 0 };
+
 // Array of default colors, indexed by color enum
 const Color defaultColors[] = {
     [RED]    = {255,   0,   0, 255},
@@ -112,12 +115,31 @@ Window *NewWindow(const char *title, int width, int height, int fps)
     return cWin;
 }
 
+Window *NewWindowEx(SDL_Window *sdlW, SDL_Renderer *sdlR, SDL_Event *sdlE)
+{
+    Window* window = (Window*)malloc(sizeof(Window));
+
+    window->renderer = sdlR;
+    window->event = sdlE;
+    window->window = sdlW;
+    window->fps = 60;
+}
+
 // Check if the window is still open (not closed by user)
 bool WindowIsOpen(Window *win)
 {
     // fetch event
     SDL_PollEvent(win->event);
     // window is open is called every frame and if we poll event here, that means user aint have to
+    if (win->event->type == SDL_MOUSEMOTION){
+        mousePosition.x = win->event->motion.x;
+        mousePosition.y = win->event->motion.y;
+    }
+
+    if (win->event->type == SDL_MOUSEWHEEL){
+        mouseScroll.x = win->event->wheel.x;        
+        mouseScroll.y = win->event->wheel.y;        
+    }
 
     // check if its open
     return win->event->type != SDL_QUIT;
@@ -276,6 +298,16 @@ void RenderDrawTextureEx(Window *win, Vector2i pos, Texture *texture, Rectangle 
         texture->texture,
         &srcRec,
         &destRec
+    );
+}
+
+void RenderDrawSpritesheet(Window *win, int x, int y, Spritesheet *sheet)
+{
+    RenderDrawTextureEx(
+        win,
+        (Vector2i) { x, y },
+        sheet->tex,
+        (Rectangle){ sheet->col * sheet->frameWidth, sheet->row * sheet->frameHeight, sheet->frameWidth, sheet->frameHeight }
     );
 }
 

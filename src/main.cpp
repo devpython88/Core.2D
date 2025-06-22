@@ -3,18 +3,25 @@
 
 int main() {
     Window* win = NewWindow("Hello world.", 800, 600, 60);
-    InitializeSFXSubsystem(21400, MIX_DEFAULT_FORMAT, 2, 2048);
-    InitializeSFXFor(MIX_INIT_MP3);
+    InitializeImageSubsystemForPNG();
+    
+    Texture* ballTex = NewTexture(win, "ball.png", 50, 50);
 
-    Music* music = NewMusicStream("./bang.mp3");
-    PlayMusicStream(music, INF_LOOP);
+    Spritesheet* sheet = NewSpritesheet(ballTex, 4, 4);
 
     while (WindowIsOpen(win)){
+        if (IsMousePressed(win, SDL_BUTTON_LEFT))
+            sheet->col++;
+        
+        Log("Mouse: %d %d", mousePosition.x, mousePosition.y);
+        
         RenderFill(win, defaultColors[WHITE]);
+        RenderDrawSpritesheet(win, 20, 20, sheet);
         RenderShow(win);
     }
 
-    FreeMusicStream(music);
+    FreeSpritesheet(sheet);
+    FreeTexture(ballTex);
     DestroyWindow(win);
     Quit();
     return 0;
