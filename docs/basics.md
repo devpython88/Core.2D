@@ -104,6 +104,27 @@ FreeTexture(yourTexture);
 ```
 
 
+## Rotation, Origin, Flipping
+To do all of that, You have to use the `RenderDrawTexturePro` function.
+Signature: `(Window* win, Vector2i pos, Texture* texture, Rectangle cutout, Vector2i origin, int angle, SDL_RendererFlip flip)`
+
+Example:
+```cpp
+RenderDrawTexturePro(win,
+            Vector2i{20, 20},
+            ballTex, // Texture
+            GetRectangleFromTexture(ballTex), // Cutout
+            Vector2i{0, 0}, // Origin
+            45, // Angle
+            SDL_FLIP_NONE // Flip
+            );
+```
+
+To use this on spritesheets, Simply replace the `Texture` argument with `yourSpritesheet->tex`
+
+And replace the `Cutout` argument with `GetCutoutFromSpritesheet(yourSheet)`. 
+
+
 ## Integration
 If you want to integrate core into your SDL2 project. But don't know what to do when core needs a `Window*`
 

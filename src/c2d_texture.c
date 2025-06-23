@@ -53,6 +53,11 @@ Texture *NewBitmapTexture(Window* win, const char *filePath, int width, int heig
     return texture;
 }
 
+Rectangle GetRectangleFromTexture(Texture *texture)
+{
+    return (Rectangle){ 0, 0, texture->width, texture->height };
+}
+
 void FreeTexture(Texture *texture)
 {
     SDL_DestroyTexture(texture->texture);
@@ -74,4 +79,9 @@ Spritesheet *NewSpritesheet(Texture *tex, int frameWidth, int frameHeight)
 void FreeSpritesheet(Spritesheet *sheet)
 {
     free(sheet);
+}
+
+Rectangle GetCutoutFromSpritesheet(Spritesheet *sheet)
+{
+    return (Rectangle) { sheet->frameWidth * sheet->col, sheet->frameHeight * sheet->row, sheet->frameWidth, sheet->frameHeight};
 }

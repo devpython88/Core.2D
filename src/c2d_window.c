@@ -301,6 +301,26 @@ void RenderDrawTextureEx(Window *win, Vector2i pos, Texture *texture, Rectangle 
     );
 }
 
+void RenderDrawTexturePro(Window * win, Vector2i pos, Texture * texture, Rectangle cutout, Vector2i origin, int angle, SDL_RendererFlip flip)
+{
+    if (texture == NULL) return;
+
+    Vector2i newPos = GetCameraRelativePosition(pos.x, pos.y);
+    Vector2i newSize = GetCameraRelativeSize(texture->width, texture->height);
+
+    SDL_Rect srcRec = { cutout.x, cutout.y, cutout.width, cutout.height };
+    SDL_Rect destRec = { newPos.x, newPos.y, newSize.x, newSize.y };
+    
+    SDL_RenderCopyEx(
+        win->renderer,
+        texture->texture,
+        &srcRec, &destRec,
+        (double) angle,
+        &((SDL_Point) { origin.x, origin.y }),
+        flip
+    );
+}
+
 void RenderDrawSpritesheet(Window *win, int x, int y, Spritesheet *sheet)
 {
     RenderDrawTextureEx(

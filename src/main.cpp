@@ -16,7 +16,12 @@ int main() {
         Log("Mouse: %d %d", mousePosition.x, mousePosition.y);
         
         RenderFill(win, defaultColors[WHITE]);
-        RenderDrawSpritesheet(win, 20, 20, sheet);
+        RenderDrawTexturePro(win,
+            Vector2i{20, 20},
+            ballTex,
+            GetRectangleFromTexture(ballTex),
+            Vector2i{0, 0},
+            45, SDL_FLIP_NONE);
         RenderShow(win);
     }
 

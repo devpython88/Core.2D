@@ -232,6 +232,9 @@ void RenderDrawTexture(Window* win, int x, int y, Texture* texture);
 // Draw a cutout
 void RenderDrawTextureEx(Window* win, Vector2i pos, Texture* texture, Rectangle cutout);
 
+// Draw a cutout + more
+void RenderDrawTexturePro(Window* win, Vector2i pos, Texture* texture, Rectangle cutout, Vector2i origin, int angle, SDL_RendererFlip flip);
+
 // Draw a spritesheet
 void RenderDrawSpritesheet(Window* win, int x, int y, Spritesheet* sheet);
 
@@ -282,13 +285,15 @@ int InitializeImageSubsystemForJPEG();
 Texture* NewTexture(Window* win, const char* filePath, int width, int height);
 Texture* NewBitmapTexture(Window* win, const char* filePath, int width, int height);
 
+Rectangle GetRectangleFromTexture(Texture* texture);
+
 void FreeTexture(Texture* texture);
 
 // SPRITESHEET RELATED
 
 Spritesheet* NewSpritesheet(Texture* tex, int frameWidth, int frameHeight);
 void FreeSpritesheet(Spritesheet* sheet);
-
+Rectangle GetCutoutFromSpritesheet(Spritesheet* sheet);
 
 // Font-RELATED FUNCTIONS
 
