@@ -141,6 +141,7 @@ typedef struct Circle {
     int x, y, radius;
 } Circle;
 
+
 // MATH-RELATED
 
 // 2D integer vector
@@ -153,6 +154,13 @@ typedef struct Vector2i {
 typedef struct Vector2f {
     float x, y;
 } Vector2f;
+
+// FILE MANAGEMENT
+
+typedef struct IoFile {
+    FILE* cfile;
+    char* path;
+} IoFile;
 
 // LOGGING
 
@@ -331,6 +339,38 @@ void ResumeMusic();
 void PlaySound(Sound* sound, int channel, int loops);
 
 
+// FILE-RELATED
+
+// Opens a file, Returns NULL if failed
+IoFile* OpenFile(const char* path, const char* mode);
+
+// Appends to a file
+void FileAppend(IoFile* file, const char* text);
+
+// Returns file size
+long GetFileSize(IoFile* file);
+
+// Returns current cursor pos or -1 on error
+long GetFileCursorPos(IoFile* file);
+
+// Closes and frees a file
+void CloseFile(IoFile* file);
+
+// Seeks the cursor at `to` in `file`
+void FileSeek(IoFile* file, int origin);
+void FileSeekEx(IoFile* file, int offset, int origin);
+
+// Rewinds cursor to start in file
+void FileRewind(IoFile* file);
+
+// Returns file content or null on fail
+char* FileRead(IoFile* file);
+
+// quick writes to a file, returns 0 on succes, 1 on fail
+int QuickFileWrite(const char* path, const char* text);
+
+// reads file, returns null if failed
+char* QuickFileRead(const char* path);
 
 
 
