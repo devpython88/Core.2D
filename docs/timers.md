@@ -31,5 +31,7 @@ To get the remaining time, Just do `timer.remaining`
 
 However to get the elapsed time, You need to call the `GetElapsed(Timer*)` function.
 
+You can also reset a timer using `ResetTimer(Timer*)`
+
 If you just wanna check if the timer is finished or not, use `IsFinished(Timer*)`
 > Sidenote: If your timer loops, then make sure to check is finished BEFORE updating the timer, otherwise when its below 0, update timer function will just reset it and prevent isfinished from returning true

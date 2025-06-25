@@ -28,6 +28,11 @@ void ReplaceTimer(Timer *timer, float newDuration, bool loop)
     timer->loop = loop;
 }
 
+void ResetTimer(Timer *timer)
+{
+    timer->remaining = timer->maxDuration;
+}
+
 bool IsFinished(Timer *timer)
 {
     return timer->remaining <= 0.0f;
@@ -41,13 +46,16 @@ void UpdateTimer(Timer *timer)
 
     timer->remaining -= dt;
 
-    if (timer->remaining < 0.0f && timer->loop){
-        timer->remaining = timer->maxDuration;
+    if (timer->remaining < 0.0f){
+        if (timer->loop) timer->remaining = timer->maxDuration;
+        else timer->remaining = 0.0f;
     }
 }
 
 float GetElapsed(Timer *timer)
 {
     if (timer == NULL) return 0.0f;
-    return timer->maxDuration - timer->remaining;
+    float elapsed = timer->maxDuration - timer->remaining;
+    if (elapsed < 0.0f) return 0.0f;
+    return elapsed;
 }

@@ -393,6 +393,9 @@ void FreeTimer(Timer* timer);
 // Replaces timer.
 void ReplaceTimer(Timer* timer, float newDuration, bool loop);
 
+// Reset timer.
+void ResetTimer(Timer* timer);
+
 // Returns if timer is finished
 bool IsFinished(Timer* timer);
 
