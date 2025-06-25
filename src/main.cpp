@@ -3,20 +3,18 @@
 
 int main() {
     Window* win = NewWindow("Hello world.", 800, 600, 60);
-    
-    const char* text = QuickFileRead("dumb.txt");
-    Log("Text: %s", text);
-    free((void*)text);
+
+    Timer* timer = NewTimer(10.0f, true);
 
     while (WindowIsOpen(win)){
-        if (IsMousePressed(win, SDL_BUTTON_LEFT)){
+        UpdateTimer(timer);
+        Log("Time elapsed: %f/%f", timer->remaining, timer->maxDuration);
 
-        }
-        
         RenderFill(win, defaultColors[WHITE]);
         RenderShow(win);
     }
 
+    FreeTimer(timer);
     DestroyWindow(win);
     Quit();
     return 0;

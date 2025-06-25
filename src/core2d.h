@@ -162,6 +162,15 @@ typedef struct IoFile {
     char* path;
 } IoFile;
 
+
+// TIMER
+
+typedef struct Timer {
+    float maxDuration;
+    float remaining;
+    bool loop;
+} Timer;
+
 // LOGGING
 
 // Logs a formatted message
@@ -372,6 +381,26 @@ int QuickFileWrite(const char* path, const char* text);
 // reads file, returns null if failed
 char* QuickFileRead(const char* path);
 
+
+// TIMER RELATED
+
+// Makes a new timer, null on fail
+Timer* NewTimer(float duration, bool loop);
+
+// Frees timer
+void FreeTimer(Timer* timer);
+
+// Replaces timer.
+void ReplaceTimer(Timer* timer, float newDuration, bool loop);
+
+// Returns if timer is finished
+bool IsFinished(Timer* timer);
+
+// Updates timer
+void UpdateTimer(Timer* timer);
+
+// Returns elapsed time
+float GetElapsed(Timer* timer);
 
 
 #ifdef __cplusplus

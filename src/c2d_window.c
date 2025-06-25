@@ -1,5 +1,8 @@
 #include "core2d.h"
 
+Uint64 TIME_NOW = 0;
+Uint64 TIME_LAST = 0;
+
 Vector2i mousePosition = { 0, 0 };
 Vector2i mouseScroll = { 0, 0 };
 
@@ -19,10 +22,6 @@ const Color defaultColors[] = {
     [MAGENTA]= {255,   0, 255, 255},
     [GRAY]   = {128, 128, 128, 255}
 };
-
-// Timing variables for delta time calculation
-Uint64 TIME_NOW = 0;
-Uint64 TIME_LAST = 0;
 
 // Logging function with printf-style formatting
 void Log(const char *format, ...)
@@ -53,6 +52,7 @@ void Err(const char *format, ...)
 // Create and initialize a new window and renderer
 Window *NewWindow(const char *title, int width, int height, int fps)
 {
+    
     Log("Initializing SDL...");
     if (SDL_Init(SDL_INIT_VIDEO) != 0){
         Err("Failed to initialize SDL! Abort.");
@@ -67,7 +67,7 @@ Window *NewWindow(const char *title, int width, int height, int fps)
         Log("Error message: %s", SDL_GetError());
         return NULL;
     }
-
+    
     SDL_Renderer* renderer = SDL_CreateRenderer(window, 0, SDL_RENDERER_ACCELERATED);
     if (!renderer){
         Err("Failed to intialize renderer! Abort.");
@@ -75,29 +75,29 @@ Window *NewWindow(const char *title, int width, int height, int fps)
         SDL_DestroyWindow(window);
         return NULL;
     }
-
+    
     SDL_Event* event = (SDL_Event*)malloc(sizeof(SDL_Event));
-
+    
     Log("Finalizing window...");
 
     Window* cWin = (Window*)malloc(sizeof(Window));
-
+    
     if (cWin == NULL){
         Err("Failed to initialize core.2d window!");
         SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(window);
         return NULL;
     }
-
+    
     cWin->window = window;
     cWin->renderer = renderer;
     cWin->fps = fps;
     cWin->event = event;
-
+    
     Log("Initializing default camera...");
-
+    
     Camera* cam = (Camera*)malloc(sizeof(Camera));
-
+    
     if (cam == NULL){
         Err("Failed to initialize core.2d camera!");
         SDL_DestroyRenderer(renderer);
@@ -109,9 +109,12 @@ Window *NewWindow(const char *title, int width, int height, int fps)
     cam->targetX = 0;
     cam->targetY = 0;
     cam->zoom = 1.0f;
-
+    
     currentCamera = cam;
-
+    
+    TIME_NOW = SDL_GetPerformanceCounter();
+    TIME_LAST = TIME_NOW;
+    
     return cWin;
 }
 
@@ -128,6 +131,8 @@ Window *NewWindowEx(SDL_Window *sdlW, SDL_Renderer *sdlR, SDL_Event *sdlE)
 // Check if the window is still open (not closed by user)
 bool WindowIsOpen(Window *win)
 {
+    UpdateDeltaTime();
+    
     // fetch event
     SDL_PollEvent(win->event);
     // window is open is called every frame and if we poll event here, that means user aint have to
