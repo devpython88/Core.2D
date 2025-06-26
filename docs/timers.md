@@ -6,21 +6,15 @@ In core, timers use the deltatime to manage time.
 
 To make a timer,
 ```cpp
-Timer* timer = NewTimer(2.0f, true);
+Timer timer;
+NewTimer(&timer, 2.0f, true); // timer inits dont fail
 
 // 2.0f is the duration
 // true is whether the timer should loop back once finished or not
 ```
 
-To replace a timer safely,
-```cpp
-ReplaceTimer(timer, 2.5f, false);
-```
+To replace a timer, just do the same as you do when making one
 
-To free a timer.
-```cpp
-FreeTimer(timer);
-```
 
 
 ## Updating timer and getting time

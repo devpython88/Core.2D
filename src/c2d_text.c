@@ -5,37 +5,33 @@ int InitializeFontSubsystem()
     return TTF_Init();
 }
 
-TextFont *NewTextFont(const char *path, int fontSize)
+int NewTextFont(TextFont* font, const char *path, int fontSize)
 {
     Log("Loading font '%s'...", path);
-
-    TextFont* font = (TextFont*)malloc(sizeof(TextFont));
 
     TTF_Font* tmpFont = TTF_OpenFont(path, fontSize);
 
     if (tmpFont == NULL){
         Err("Failed to load font: %s", path);
         Log("Error message: %s", TTF_GetError());
-        return NULL;
+        return 1;
     }
 
     font->font = tmpFont;
-    return font;
+    return 0;
 }
 
-Text *NewText(Window* win, TextFont *font, const char *text, Color color)
+int NewText(Text* out, Window* win, TextFont *font, const char *text, Color color)
 {
-    NewTextEx(win, font, text, color, false);
+    return NewTextEx(out, win, font, text, color, false);
 }
 
-Text *NewTextEx(Window *win, TextFont *font, const char *text, Color color, bool blend)
+int NewTextEx(Text* out, Window *win, TextFont *font, const char *text, Color color, bool blend)
 {
     if (font == NULL){
         Err("Font provided was null.");
-        return NULL;
+        return 1;
     }
-
-    Text* pText = (Text*)malloc(sizeof(Text));
 
     SDL_Surface* textSurface = NULL;
     
@@ -45,29 +41,27 @@ Text *NewTextEx(Window *win, TextFont *font, const char *text, Color color, bool
     if (textSurface == NULL){
         Err("Failed to render text '%s'.", text);
         Log("Error message: %s", TTF_GetError);
-        return NULL;
+        return 1;
     }
 
-    pText->tex = SDL_CreateTextureFromSurface(win->renderer, textSurface);
-    pText->height = textSurface->h;
-    pText->width = textSurface->w;
+    out->tex = SDL_CreateTextureFromSurface(win->renderer, textSurface);
+    out->height = textSurface->h;
+    out->width = textSurface->w;
 
     SDL_FreeSurface(textSurface);
 
-    return pText;
+    return 0;
 }
 
 void FreeText(Text *text)
 {
     Log("Unloading text...");
     SDL_DestroyTexture(text->tex);
-    free(text);
 }
 
 void FreeTextFont(TextFont *font)
 {
     Log("Unloading font...");
     TTF_CloseFont(font->font);
-    free(font);
 }
 

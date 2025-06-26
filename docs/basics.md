@@ -6,32 +6,33 @@ It aims to be as user-friendly as Raylib but still have the perfomance and integ
 ## Creating a basic window
 1. Make a `Window*` object
 ```cpp
-Window* window = NewWindow("My Window", 640, 480, 60) // (title, width, height, fps)
+Window window; 
+int r = NewWindow(&window, "My Window", 640, 480, 60) // (title, width, height, fps)
 // Always make sure to handle errors
-if (window == NULL) return 1;
+if (r == 1) return 1;
 ```
 
 2. Make a simple game loop.
 ```cpp
 // Loop runs while window is open
-while (WindowIsOpen(window)){
+while (WindowIsOpen(&window)){
     // Events are auto-polled
 
     // Fill the renderer with white
-    RenderFill(window, defaultColors[RED]);
+    RenderFill(&window, defaultColors[WHITE]);
 
     // Draw stuff
-    RenderFillRect(window, (Rectangle) { 0, 0, 50, 50 }, defaultColors[BLUE]);
+    RenderFillRect(&window, (Rectangle) { 0, 0, 50, 50 }, defaultColors[BLUE]);
 
     // Show drawn contents
-    RenderShow(window);
+    RenderShow(&window);
 }
 ```
 
 3. Destroy window and quit
 ```cpp
-DestroyWindow(window);
-Quit():
+DestroyWindow(&window);
+Quit();
 ```
 
 
@@ -55,24 +56,27 @@ if (InitializeImageSubsystemForPNG() != 0){
 
 2. Load the texture
 ```cpp
-Texture* player = NewTexture("player.png", 100, 100); // (file, scaleWidth, scaleHeight)
+Texture player;
+int r = NewTexture(&player, "player.png", 100, 100); // (file, scaleWidth, scaleHeight)
 // You can also use `NewBitmapTexture` for bitmaps
+// handle eror
+if (r == 1) return 1;
 ```
 
 3. Draw the texture
 ```cpp
-RenderDrawTexture(window, x, y, texture);
+RenderDrawTexture(&window, x, y, &player);
 ```
 
 4. (Bonus) Draw a cutout
 Cutouts are essential for frame based animations.
 ```cpp
-RenderDrawTextureEx(window, (Vector2i) { x, y }, texture, (Rectangle) { frameX, frameY, frameWidth, frameHeight });
+RenderDrawTextureEx(&window, (Vector2i) { x, y }, &texture, (Rectangle) { frameX, frameY, frameWidth, frameHeight });
 ```
 
 5. Unload the texture
 ```cpp
-FreeTexture(texture)
+FreeTexture(&texture);
 ```
 
 
@@ -83,7 +87,9 @@ Spritesheets are simple structs that abstract the calculations needed for frame-
 To create a spritesheet, follow these steps (Make sure you [initialize the subsystem](#1-initialize-the-image-subsystem))
 1. Make a instance
 ```cpp
-Spritesheet* sheet = NewSpritesheet(pointerToYourTexture, frameWidth, frameHeight);
+Spritesheet sheet;
+NewSpritesheet(&sheet, &yourTexture, frameWidth, frameHeight);
+// spritesheets arent actual textures so they dont have fails
 ```
 
 2. Modify row and col
@@ -94,13 +100,12 @@ sheet.col++;
 
 3. Draw
 ```cpp
-RenderDrawSpritesheet(win, sheet, x, y);
+RenderDrawSpritesheet(&window, &sheet, x, y);
 ```
 
 4. Free
 ```cpp
-FreeSpritesheet(sheet);
-FreeTexture(yourTexture);
+FreeTexture(&yourTexture);
 ```
 
 
@@ -110,9 +115,9 @@ Signature: `(Window* win, Vector2i pos, Texture* texture, Rectangle cutout, Vect
 
 Example:
 ```cpp
-RenderDrawTexturePro(win,
+RenderDrawTexturePro(&win,
             Vector2i{20, 20},
-            ballTex, // Texture
+            &ballTex, // Texture
             GetRectangleFromTexture(ballTex), // Cutout
             Vector2i{0, 0}, // Origin
             45, // Angle
@@ -120,23 +125,27 @@ RenderDrawTexturePro(win,
             );
 ```
 
-To use this on spritesheets, Simply replace the `Texture` argument with `yourSpritesheet->tex`
+To use this on spritesheets, Simply replace the `Texture` argument with `yourSpritesheet.tex`
 
 And replace the `Cutout` argument with `GetCutoutFromSpritesheet(yourSheet)`. 
 
 
 ## Integration
-If you want to integrate core into your SDL2 project. But don't know what to do when core needs a `Window*`
+If you want to integrate core into your SDL2 project. But don't know what to do when core needs a `Window`
 
 Well, to make a window by using your existing SDL2 variables, Use `NewWindowEx`
 
 ```cpp
-Window* win = NewWindowEx(sdlWindow, sdlRenderer, sdlEvent) // make sure all are pointers or just add `&`
+Window win;
+int r = NewWindowEx(&win, sdlWindow, sdlRenderer, sdlEvent) // make sure all are pointers or just add `&`
+
+if (r == 1) return 1;
 ```
 
 Make sure to free the window at the end
 ```cpp
 free(win);
+free(currentCamera); // Camera is added by default in core
 ```
 
 

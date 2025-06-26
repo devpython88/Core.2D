@@ -15,18 +15,24 @@ if (InitializeFontSubsystem() != 0){
 2. Initialize a TextFont
 ```cpp
 // Even though we provide a font size, we can still scale it when we render text
-TextFont* font = NewTextFont("<replace-with-your-font>.ttf", 30);
+TextFont font;
+int r = NewTextFont("<replace-with-your-font>.ttf", 30);
+
+if (r == 1) return 1;
 ```
 
 3. Make some text
 ```cpp
-Text* text = NewText(window, font, "Hello world!", defaultColors[BLACK]);
+Text text;
+int r = NewText(&window, &font, "Hello world!", defaultColors[BLACK]);
+if (r == 1) return 1;
+
 text.width = 100; // Optional: Scale the text
 ```
 
 4. Draw the text
 ```cpp
-RenderDrawText(window, text, 20, 20)
+RenderDrawText(&window, &text, 20, 20)
 ```
 
 5. Unload everything

@@ -62,6 +62,9 @@ enum {
 // Array of default colors
 extern const Color defaultColors[];
 
+// Texture id
+extern int textureID;
+
 // DELTA TIME
 
 // Stores current and last time for delta time calculation
@@ -105,6 +108,7 @@ typedef struct Music {
 typedef struct Texture {
     SDL_Texture* texture;
     int width, height;
+    int id;
 } Texture;
 
 
@@ -181,9 +185,9 @@ void Err(const char* format, ...);
 
 // WINDOW-RELATED FUNCTIONS
 
-// Creates a new window
-Window* NewWindow(const char* title, int width, int height, int fps);
-Window* NewWindowEx(SDL_Window* sdlW, SDL_Renderer* sdlR, SDL_Event* sdlE);
+// Creates a new window returns 1 if failed
+int NewWindow(Window* window, const char* title, int width, int height, int fps);
+int NewWindowEx(Window* window, SDL_Window* sdlW, SDL_Renderer* sdlR, SDL_Event* sdlE);
 
 // Checks if the window is open
 bool WindowIsOpen(Window* win);
@@ -299,8 +303,9 @@ Uint8 GetMousePressed(Window* win);
 int InitializeImageSubsystemForPNG();
 int InitializeImageSubsystemForJPEG();
 
-Texture* NewTexture(Window* win, const char* filePath, int width, int height);
-Texture* NewBitmapTexture(Window* win, const char* filePath, int width, int height);
+// returns 1 if failed
+int NewTexture(Texture* tex, Window* win, const char* filePath, int width, int height);
+int NewBitmapTexture(Texture* tex, Window* win, const char* filePath, int width, int height);
 
 Rectangle GetRectangleFromTexture(Texture* texture);
 
@@ -308,8 +313,7 @@ void FreeTexture(Texture* texture);
 
 // SPRITESHEET RELATED
 
-Spritesheet* NewSpritesheet(Texture* tex, int frameWidth, int frameHeight);
-void FreeSpritesheet(Spritesheet* sheet);
+void NewSpritesheet(Spritesheet* sheet, Texture* tex, int frameWidth, int frameHeight);
 Rectangle GetCutoutFromSpritesheet(Spritesheet* sheet);
 
 // Font-RELATED FUNCTIONS
@@ -317,16 +321,16 @@ Rectangle GetCutoutFromSpritesheet(Spritesheet* sheet);
 // Initialize font susbsystem, returns 0 on success
 int InitializeFontSubsystem();
 
-// Initialize a text font, returns null on fail
-TextFont* NewTextFont(const char* path, int fontSize);
+// Initialize a text font, returns 1 on fail
+int NewTextFont(TextFont* font, const char* path, int fontSize);
 
-// Initialize text, returns null on fail
-Text* NewText(Window* win, TextFont* font, const char* text, Color color);
-Text* NewTextEx(Window* win, TextFont* font, const char* text, Color color, bool blend);
+// Initialize text, returns 1 on fail
+int NewText(Text* out, Window* win, TextFont* font, const char* text, Color color);
+int NewTextEx(Text* out, Window* win, TextFont* font, const char* text, Color color, bool blend);
 
 // Free stuff
-void FreeText(Text* text);
 void FreeTextFont(TextFont* font);
+void FreeText(Text* text);
 
 
 // SOUND-RELATED
@@ -334,8 +338,8 @@ void FreeTextFont(TextFont* font);
 int InitializeSFXSubsystem(int frequency, Uint16 format, int channels, int chunksize);
 int InitializeSFXFor(int format);
 
-Music* NewMusicStream(const char* path);
-Sound* NewSound(const char* path);
+int NewMusicStream(Music* out, const char* path);
+int NewSound(Sound* out, const char* path);
 
 void FreeMusicStream(Music* music);
 void FreeSound(Sound* sound);
@@ -350,8 +354,8 @@ void PlaySound(Sound* sound, int channel, int loops);
 
 // FILE-RELATED
 
-// Opens a file, Returns NULL if failed
-IoFile* OpenFile(const char* path, const char* mode);
+// Opens a file, Returns 1 if failed
+int OpenFile(IoFile* file, const char* path, const char* mode);
 
 // Appends to a file
 void FileAppend(IoFile* file, const char* text);
@@ -384,14 +388,8 @@ char* QuickFileRead(const char* path);
 
 // TIMER RELATED
 
-// Makes a new timer, null on fail
-Timer* NewTimer(float duration, bool loop);
-
-// Frees timer
-void FreeTimer(Timer* timer);
-
-// Replaces timer.
-void ReplaceTimer(Timer* timer, float newDuration, bool loop);
+// Makes a new timer, doesnt fail
+void NewTimer(Timer* timer, float duration, bool loop);
 
 // Reset timer.
 void ResetTimer(Timer* timer);

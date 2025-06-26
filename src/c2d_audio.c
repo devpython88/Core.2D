@@ -11,49 +11,43 @@ int InitializeSFXFor(int format)
     return Mix_Init(format);
 }
 
-Music *NewMusicStream(const char *path)
+int NewMusicStream(Music* music, const char *path)
 {
     Log("Loading music '%s'...", path);
     Mix_Music* sdlMus = Mix_LoadMUS(path);
     if (sdlMus == NULL){
         Err("Failed to load music '%s'.", path);
         Log("Error message: %s", Mix_GetError());
-        return NULL;
+        return 1;
     }
-    
-    Music* music = (Music*)malloc(sizeof(Music));
-    
     music->content = sdlMus;
 
-    return music;
+    return 0;
 }
 
-Sound *NewSound(const char *path)
+int NewSound(Sound* sound, const char *path)
 {
     Log("Loading sound '%s'...", path);
     Mix_Chunk* sdlChunk = Mix_LoadWAV(path);
     if (sdlChunk == NULL){
         Err("Failed to load chunk '%s'.", path);
         Log("Error message: %s", Mix_GetError());
-        return NULL;
+        return 1;
     }
     
-    Sound* sound = (Sound*)malloc(sizeof(Sound));
     sound->chunk = sdlChunk;
 
-    return sound;
+    return 0;
 }
 
 void FreeMusicStream(Music *music)
 {
     Mix_FreeMusic(music->content);
-    free(music);
 }
 
 void FreeSound(Sound *sound)
 {
     Mix_FreeChunk(sound->chunk);
-    free(sound);
 }
 
 void PlayMusicStream(Music *music, int loops)

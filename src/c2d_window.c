@@ -1,5 +1,7 @@
 #include "core2d.h"
 
+int textureID = 0;
+
 Uint64 TIME_NOW = 0;
 Uint64 TIME_LAST = 0;
 
@@ -50,49 +52,40 @@ void Err(const char *format, ...)
 }
 
 // Create and initialize a new window and renderer
-Window *NewWindow(const char *title, int width, int height, int fps)
+int NewWindow(Window* window, const char *title, int width, int height, int fps)
 {
     
     Log("Initializing SDL...");
     if (SDL_Init(SDL_INIT_VIDEO) != 0){
         Err("Failed to initialize SDL! Abort.");
         Log("Error message: %s", SDL_GetError());
-        return NULL;
+        return 1;
     }
 
     Log("Creating window...");
-    SDL_Window* window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN);
+    SDL_Window* swindow = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN);
     if (!window){
         Err("Failed to initialize window! Abort.");
         Log("Error message: %s", SDL_GetError());
-        return NULL;
+        return 1;
     }
     
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, 0, SDL_RENDERER_ACCELERATED);
+    SDL_Renderer* renderer = SDL_CreateRenderer(swindow, 0, SDL_RENDERER_ACCELERATED);
     if (!renderer){
         Err("Failed to intialize renderer! Abort.");
         Log("Error message: %s", SDL_GetError());
-        SDL_DestroyWindow(window);
-        return NULL;
+        SDL_DestroyWindow(swindow);
+        return 1;
     }
     
     SDL_Event* event = (SDL_Event*)malloc(sizeof(SDL_Event));
     
     Log("Finalizing window...");
-
-    Window* cWin = (Window*)malloc(sizeof(Window));
     
-    if (cWin == NULL){
-        Err("Failed to initialize core.2d window!");
-        SDL_DestroyRenderer(renderer);
-        SDL_DestroyWindow(window);
-        return NULL;
-    }
-    
-    cWin->window = window;
-    cWin->renderer = renderer;
-    cWin->fps = fps;
-    cWin->event = event;
+    window->window = swindow;
+    window->renderer = renderer;
+    window->fps = fps;
+    window->event = event;
     
     Log("Initializing default camera...");
     
@@ -101,9 +94,8 @@ Window *NewWindow(const char *title, int width, int height, int fps)
     if (cam == NULL){
         Err("Failed to initialize core.2d camera!");
         SDL_DestroyRenderer(renderer);
-        SDL_DestroyWindow(window);
-        free(cWin);
-        return NULL;
+        SDL_DestroyWindow(swindow);
+        return 1;
     }
 
     cam->targetX = 0;
@@ -115,17 +107,16 @@ Window *NewWindow(const char *title, int width, int height, int fps)
     TIME_NOW = SDL_GetPerformanceCounter();
     TIME_LAST = TIME_NOW;
     
-    return cWin;
+    return 0;
 }
 
-Window *NewWindowEx(SDL_Window *sdlW, SDL_Renderer *sdlR, SDL_Event *sdlE)
+int NewWindowEx(Window* window, SDL_Window *sdlW, SDL_Renderer *sdlR, SDL_Event *sdlE)
 {
-    Window* window = (Window*)malloc(sizeof(Window));
-
     window->renderer = sdlR;
     window->event = sdlE;
     window->window = sdlW;
     window->fps = 60;
+    return 0;
 }
 
 // Check if the window is still open (not closed by user)
@@ -166,7 +157,6 @@ void DestroyWindow(Window *win)
 
     Log("Freeing window...");
     free(win->event);
-    free(win);
 }
 
 // Quit SDL and cleanup
@@ -175,8 +165,8 @@ void Quit()
     Log("Uninitializing SDL...");
     IMG_Quit();
     TTF_Quit();
-    Mix_Quit();
     Mix_CloseAudio();
+    Mix_Quit();
     SDL_Quit();
 }
 
