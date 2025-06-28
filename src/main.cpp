@@ -19,6 +19,8 @@ int main() {
             Log("Hello there!");
         }
 
+        // This is when the key is held
+
         RenderFill(&win, WHITE);
         RenderFillRect(&win, rec, RED);
         RenderShow(&win);
