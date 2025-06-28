@@ -1,29 +1,18 @@
 #include "core2d.h"
 
+Uint8 sm_scancodes[MAX_SCANCODES] = { 0 };
+Uint8 sm_oldScancodes[MAX_SCANCODES] = { 0 };
+
 int textureID = 0;
 
 Uint64 TIME_NOW = 0;
 Uint64 TIME_LAST = 0;
 
-Vector2i mousePosition = { 0, 0 };
-Vector2i mouseScroll = { 0, 0 };
+Vector2f mousePosition = { 0, 0 };
+Vector2f mouseScroll = { 0, 0 };
 
 // Array of default colors, indexed by color enum
-const Color defaultColors[] = {
-    [RED]    = {255,   0,   0, 255},
-    [GREEN]  = {  0, 255,   0, 255},
-    [BLUE]   = {  0,   0, 255, 255},
-    [YELLOW] = {255, 255,   0, 255},
-    [PURPLE] = {128,   0, 128, 255},
-    [PINK]   = {255, 192, 203, 255},
-    [BLACK]  = {  0,   0,   0, 255},
-    [WHITE]  = {255, 255, 255, 255},
-    [BROWN]  = {139,  69,  19, 255},
-    [ORANGE] = {255, 165,   0, 255},
-    [CYAN]   = {  0, 255, 255, 255},
-    [MAGENTA]= {255,   0, 255, 255},
-    [GRAY]   = {128, 128, 128, 255}
-};
+
 
 // Logging function with printf-style formatting
 void Log(const char *format, ...)
@@ -119,26 +108,22 @@ int NewWindowEx(Window* window, SDL_Window *sdlW, SDL_Renderer *sdlR, SDL_Event 
     return 0;
 }
 
-// Check if the window is still open (not closed by user)
-bool WindowIsOpen(Window *win)
+int FetchEvents(Window *win)
 {
-    UpdateDeltaTime();
-    
-    // fetch event
-    SDL_PollEvent(win->event);
-    // window is open is called every frame and if we poll event here, that means user aint have to
-    if (win->event->type == SDL_MOUSEMOTION){
-        mousePosition.x = win->event->motion.x;
-        mousePosition.y = win->event->motion.y;
-    }
+    // update scancodes
+    UpdateScancodes();
 
-    if (win->event->type == SDL_MOUSEWHEEL){
-        mouseScroll.x = win->event->wheel.x;        
-        mouseScroll.y = win->event->wheel.y;        
-    }
+    return SDL_PollEvent(win->event);
+}
 
-    // check if its open
-    return win->event->type != SDL_QUIT;
+bool IsEvent(Window *win, int type)
+{
+    return win->event->type == type;
+}
+
+SDL_Event* GetEvent(Window *win)
+{
+    return win->event;
 }
 
 // Destroy window, renderer, and camera, and free memory
@@ -206,8 +191,8 @@ void RenderFillRect(Window *win, Rectangle rec, Color c)
 {
     RenderSetColor(win, c);
     
-    Vector2i newPos = GetCameraRelativePosition(rec.x, rec.y); // No handling required since if theres no camera, it will just return the x and y
-    Vector2i newSize = GetCameraRelativeSize(rec.width, rec.height);
+    Vector2f newPos = GetCameraRelativePosition(rec.x, rec.y); // No handling required since if theres no camera, it will just return the x and y
+    Vector2f newSize = GetCameraRelativeSize(rec.width, rec.height);
     
     SDL_Rect sdlRec = { newPos.x, newPos.y, newSize.x, newSize.y };
     SDL_RenderFillRect(win->renderer, &sdlRec);
@@ -218,8 +203,8 @@ void RenderLinesRect(Window *win, Rectangle rec, Color c)
 {
     RenderSetColor(win, c);
 
-    Vector2i newPos = GetCameraRelativePosition(rec.x, rec.y); // No handling required since if theres no camera, it will just return the x and y
-    Vector2i newSize = GetCameraRelativeSize(rec.width, rec.height);
+    Vector2f newPos = GetCameraRelativePosition(rec.x, rec.y); // No handling required since if theres no camera, it will just return the x and y
+    Vector2f newSize = GetCameraRelativeSize(rec.width, rec.height);
 
     SDL_Rect sdlRec = { newPos.x, newPos.y, newSize.x, newSize.y };
     SDL_RenderDrawRect(win->renderer, &sdlRec);
@@ -230,7 +215,7 @@ void RenderFillCircle(Window *win, Circle circle, Color c)
 {
     RenderSetColor(win, c);
     
-    Vector2i newPos = GetCameraRelativePosition(circle.x, circle.y);
+    Vector2f newPos = GetCameraRelativePosition(circle.x, circle.y);
     float newRadius = GetCameraRelativeSize(circle.radius, 0).x;
 
     for (int dy = -newRadius; dy <= newRadius; dy++) {
@@ -244,30 +229,30 @@ void RenderFillCircle(Window *win, Circle circle, Color c)
 }
 
 // Draw a single point with color, camera-relative
-void RenderDrawPoint(Window *win, int x, int y, Color c)
+void RenderDrawPoint(Window *win, float x, float y, Color c)
 {
     RenderSetColor(win, c);
-    Vector2i newPos = GetCameraRelativePosition(x, y);
+    Vector2f newPos = GetCameraRelativePosition(x, y);
     SDL_RenderDrawPoint(win->renderer, newPos.x, newPos.y);
 }
 
 // Draw a line between two points with color, camera-relative
-void RenderDrawLine(Window* win, Vector2i start, Vector2i end, Color c)
+void RenderDrawLine(Window* win, Vector2f start, Vector2f end, Color c)
 {
     RenderSetColor(win, c);
 
-    Vector2i newStartPos = GetCameraRelativePosition(start.x, start.y);
-    Vector2i newEndPos = GetCameraRelativePosition(end.x, end.y);
+    Vector2f newStartPos = GetCameraRelativePosition(start.x, start.y);
+    Vector2f newEndPos = GetCameraRelativePosition(end.x, end.y);
 
     SDL_RenderDrawLine(win->renderer, newStartPos.x, newStartPos.y, newEndPos.x, newEndPos.y);
 }
 
-void RenderDrawTexture(Window *win, int x, int y, Texture *texture)
+void RenderDrawTexture(Window *win, float x, float y, Texture *texture)
 {
     if (texture == NULL) return;
 
-    Vector2i newPos = GetCameraRelativePosition(x, y);
-    Vector2i newSize = GetCameraRelativeSize(texture->width, texture->height);
+    Vector2f newPos = GetCameraRelativePosition(x, y);
+    Vector2f newSize = GetCameraRelativeSize(texture->width, texture->height);
     const SDL_Rect destRec = { newPos.x, newPos.y, newSize.x, newSize.y };
 
     SDL_RenderCopy(
@@ -278,12 +263,12 @@ void RenderDrawTexture(Window *win, int x, int y, Texture *texture)
     );
 }
 
-void RenderDrawTextureEx(Window *win, Vector2i pos, Texture *texture, Rectangle cutout)
+void RenderDrawTextureEx(Window *win, Vector2f pos, Texture *texture, Rectangle cutout)
 {
     if (texture == NULL) return;
 
-    Vector2i newPos = GetCameraRelativePosition(pos.x, pos.y);
-    Vector2i newSize = GetCameraRelativeSize(texture->width, texture->height);
+    Vector2f newPos = GetCameraRelativePosition(pos.x, pos.y);
+    Vector2f newSize = GetCameraRelativeSize(texture->width, texture->height);
 
     SDL_Rect srcRec = { cutout.x, cutout.y, cutout.width, cutout.height };
     SDL_Rect destRec = { newPos.x, newPos.y, newSize.x, newSize.y };
@@ -296,12 +281,12 @@ void RenderDrawTextureEx(Window *win, Vector2i pos, Texture *texture, Rectangle 
     );
 }
 
-void RenderDrawTexturePro(Window * win, Vector2i pos, Texture * texture, Rectangle cutout, Vector2i origin, int angle, SDL_RendererFlip flip)
+void RenderDrawTexturePro(Window * win, Vector2f pos, Texture * texture, Rectangle cutout, Vector2f origin, int angle, SDL_RendererFlip flip)
 {
     if (texture == NULL) return;
 
-    Vector2i newPos = GetCameraRelativePosition(pos.x, pos.y);
-    Vector2i newSize = GetCameraRelativeSize(texture->width, texture->height);
+    Vector2f newPos = GetCameraRelativePosition(pos.x, pos.y);
+    Vector2f newSize = GetCameraRelativeSize(texture->width, texture->height);
 
     SDL_Rect srcRec = { cutout.x, cutout.y, cutout.width, cutout.height };
     SDL_Rect destRec = { newPos.x, newPos.y, newSize.x, newSize.y };
@@ -316,20 +301,20 @@ void RenderDrawTexturePro(Window * win, Vector2i pos, Texture * texture, Rectang
     );
 }
 
-void RenderDrawSpritesheet(Window *win, int x, int y, Spritesheet *sheet)
+void RenderDrawSpritesheet(Window *win, float x, float y, Spritesheet *sheet)
 {
     RenderDrawTextureEx(
         win,
-        (Vector2i) { x, y },
+        (Vector2f) { x, y },
         sheet->tex,
         (Rectangle){ sheet->col * sheet->frameWidth, sheet->row * sheet->frameHeight, sheet->frameWidth, sheet->frameHeight }
     );
 }
 
-void RenderDrawText(Window *win, Text *text, int x, int y)
+void RenderDrawText(Window *win, Text *text, float x, float y)
 {
-    Vector2i newPos = GetCameraRelativePosition(x, y);
-    Vector2i newSize = GetCameraRelativeSize(text->width, text->height);
+    Vector2f newPos = GetCameraRelativePosition(x, y);
+    Vector2f newSize = GetCameraRelativeSize(text->width, text->height);
 
     const SDL_Rect destRec = { newPos.x, newPos.y, newSize.x, newSize.y };
 
@@ -345,7 +330,7 @@ void RenderShow(Window *win)
     SDL_Delay(1000 / win->fps);
 }
 
-bool CheckCollisionAABB(int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2)
+bool CheckCollisionAABB(float x1, float y1, float w1, float h1, float x2, float y2, float w2, float h2)
 {
     return (
         x1 < x2 + w2 &&
@@ -355,7 +340,7 @@ bool CheckCollisionAABB(int x1, int y1, int w1, int h1, int x2, int y2, int w2, 
     );
 }
 
-bool CheckCollisionCircleRec(int x1, int y1, int r1, int x2, int y2, int w2, int h2)
+bool CheckCollisionCircleRec(float x1, float y1, float r1, float x2, float y2, float w2, float h2)
 {
     // Find the closest point on the rectangle to the circle center
     int closestX = fmax(x2, fmin(x1, x2 + w2));
@@ -367,4 +352,33 @@ bool CheckCollisionCircleRec(int x1, int y1, int r1, int x2, int y2, int w2, int
 
     // If the distance is less than the circle's radius, they are colliding
     return (dx * dx + dy * dy) <= (r1 * r1);
+}
+
+
+
+// SCANCODES
+
+void UpdateScancodes()
+{
+    CopyScancodesToOld();
+
+    int numberOfKeys;
+    const Uint8 *keyboard = SDL_GetKeyboardState(&numberOfKeys);
+
+    // if number of keys is less than max, then the limit is the number of keys
+    // else its the max scancodes
+
+    int limit = (numberOfKeys < MAX_SCANCODES) ? numberOfKeys : MAX_SCANCODES;
+
+    // copy keyboard to scancode array
+    for (int i = 0; i < limit; i++){
+        sm_scancodes[i] = (keyboard[i] == 1);
+    }
+}
+
+void CopyScancodesToOld()
+{
+    for (int i = 0; i < MAX_SCANCODES; i++){
+        sm_oldScancodes[i] = sm_scancodes[i];
+    }
 }

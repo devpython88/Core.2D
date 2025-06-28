@@ -12,24 +12,24 @@ Camera* currentCamera = NULL;
  *
  * @param x The x coordinate in world space
  * @param y The y coordinate in world space
- * @return The position relative to the camera as a Vector2i
+ * @return The position relative to the camera as a Vector2f
  */
-Vector2i GetCameraRelativePosition(int x, int y)
+Vector2f GetCameraRelativePosition(float x, float y)
 {
-    if (!useCamera || currentCamera == NULL) return (Vector2i){x, y};
+    if (!useCamera || currentCamera == NULL) return (Vector2f){x, y};
 
-    int relX = (int)((x - currentCamera->targetX) * currentCamera->zoom);
-    int relY = (int)((y - currentCamera->targetY) * currentCamera->zoom);
-    return (Vector2i){ relX, relY };
+    float relX = (float)((x - currentCamera->targetX) * currentCamera->zoom);
+    float relY = (float)((y - currentCamera->targetY) * currentCamera->zoom);
+    return (Vector2f){ relX, relY };
 }
 
 // Get size and position relative to camera (with zoom and offset)
-Vector2i GetCameraRelativeSize(int w, int h)
+Vector2f GetCameraRelativeSize(float w, float h)
 {
-    if (currentCamera == NULL || !useCamera) return (Vector2i) { w, h };
+    if (currentCamera == NULL || !useCamera) return (Vector2f) { w, h };
 
     // The size is scaled by zoom, but you may want to also provide a function for position
-    return (Vector2i){ (int)(w * currentCamera->zoom), (int)(h * currentCamera->zoom) };
+    return (Vector2f){ (float)(w * currentCamera->zoom), (float)(h * currentCamera->zoom) };
 }
 
 /**

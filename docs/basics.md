@@ -14,15 +14,21 @@ if (r == 1) return 1;
 
 2. Make a simple game loop.
 ```cpp
-// Loop runs while window is open
-while (WindowIsOpen(&window)){
-    // Events are auto-polled
+bool running = true;
+
+while (running){
+    UpdateDeltatime(); // Do this before ANYTHING 
+    for (FetchEvents(&win)){
+        if (IsEvent(&win, SDL_QUIT)){
+            running = false; // exit on close
+        }
+    }
 
     // Fill the renderer with white
-    RenderFill(&window, defaultColors[WHITE]);
+    RenderFill(&window, WHITE);
 
     // Draw stuff
-    RenderFillRect(&window, (Rectangle) { 0, 0, 50, 50 }, defaultColors[BLUE]);
+    RenderFillRect(&window, (Rectangle) { 0, 0, 50, 50 }, BLUE);
 
     // Show drawn contents
     RenderShow(&window);

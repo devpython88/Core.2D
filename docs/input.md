@@ -2,16 +2,21 @@
 
 in core, Input is mostly the same as sdl except for the fact that its polled automatically when you check if the window is open.
 
-## Simple key and mouse presses
+## key and mouse presses
 
-To check simple key pressed in SDL2 you have two options
-1. Use `IsKeyPressed(Window* win, SDL_Keycode key)`
-- If you use this, Then you wont have to check if the event was `KEYDOWN`
+There are many different ways to check input in core
 
-2. Use `GetKeycode(Window* win)` or `GetScancode(Window* win)`
-- These provide more control since they don't auto-handle if the event was `KEYDOWN`
+1. Key Input
+To check if a key was held: `IsKeyHeld(SDL_Keycode)`
+To check if a key was just pressed: `IsKeyJustPressed(SDL_Keycode)`
+To check if a key was just released: `IsKeyJustReleased(SDL_Keycode)`
 
-Same goes for mouse buttons, There is `IsMousePressed(Window* win, Uint8 button)` function and a `GetMousePressed(Window* win)` function.
+2. Mouse input
+To check if a mouse button is pressed: `IsMousePressed(button)`
+
+3. Getting keycode and scancode
+To get the pressed key: `GetKeycode(Window*)`
+To get the pressed scancode: `GetScancode(Window*)`
 
 ## Mouse position
 

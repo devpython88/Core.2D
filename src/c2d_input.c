@@ -10,10 +10,22 @@ SDL_Keycode GetKeycode(Window *win)
     return win->event->key.keysym.sym;
 }
 
-bool IsKeyPressed(Window *win, SDL_Keycode keycode)
+bool IsKeyJustPressed(SDL_Keycode keycode)
 {
-    return win->event->type == SDL_KEYDOWN
-        && GetKeycode(win) == keycode;
+    SDL_Scancode scancode = SDL_GetScancodeFromKey(keycode);
+    return sm_scancodes[scancode] && !(sm_oldScancodes[scancode]);
+}
+
+bool IsKeyJustReleased(SDL_Keycode keycode)
+{
+    SDL_Scancode scancode = SDL_GetScancodeFromKey(keycode);
+    return !(sm_scancodes[scancode]) && sm_oldScancodes[scancode];
+}
+
+bool IsKeyHeld(SDL_Keycode keycode)
+{
+    SDL_Scancode scancode = SDL_GetScancodeFromKey(keycode);
+    return sm_scancodes[scancode];
 }
 
 bool IsMousePressed(Window *win, Uint8 button)

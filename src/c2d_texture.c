@@ -10,7 +10,7 @@ int InitializeImageSubsystemForJPEG()
     return IMG_Init(IMG_INIT_JPG);
 }
 
-int NewTexture(Texture* tex, Window* win, const char *filePath, int width, int height)
+int NewTexture(Texture* tex, Window* win, const char *filePath, float width, float height)
 {
     Log("Loading texture '%s'...", filePath);
 
@@ -32,7 +32,7 @@ int NewTexture(Texture* tex, Window* win, const char *filePath, int width, int h
     return 0;
 }
 
-int NewBitmapTexture(Texture* tex, Window* win, const char *filePath, int width, int height)
+int NewBitmapTexture(Texture* tex, Window* win, const char *filePath, float width, float height)
 {
     Log("Loading bitmap texture '%s'...", filePath);
     

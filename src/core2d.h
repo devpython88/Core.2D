@@ -9,6 +9,7 @@
 #include <SDL2/SDL_mixer.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <math.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -35,6 +36,9 @@ extern "C" {
 
 #define NEAREST_AVAILABLE_CHANNEL -1
 
+// max scancodes
+#define MAX_SCANCODES SDL_NUM_SCANCODES
+
 // COLORS
 
 // Represents an RGBA color
@@ -42,28 +46,30 @@ typedef struct Color {
     Uint8 r, g, b, a;
 } Color;
 
-// Enum for default color indices
-enum {
-    RED,
-    GREEN,
-    BLUE,
-    YELLOW,
-    PURPLE,
-    PINK,
-    BLACK,
-    WHITE,
-    BROWN,
-    ORANGE,
-    CYAN,
-    MAGENTA,
-    GRAY
-};
+// Colors
 
-// Array of default colors
-extern const Color defaultColors[];
+#define RED     (Color){255,   0,   0, 255}
+#define GREEN   (Color){  0, 255,   0, 255}
+#define BLUE    (Color){  0,   0, 255, 255}
+#define YELLOW  (Color){255, 255,   0, 255}
+#define PURPLE  (Color){128,   0, 128, 255}
+#define PINK    (Color){255, 192, 203, 255}
+#define BLACK   (Color){  0,   0,   0, 255}
+#define WHITE   (Color){255, 255, 255, 255}
+#define BROWN   (Color){139,  69,  19, 255}
+#define ORANGE  (Color){255, 165,   0, 255}
+#define CYAN    (Color){  0, 255, 255, 255}
+#define MAGENTA (Color){255,   0, 255, 255}
+#define GRAY    (Color){128, 128, 128, 255}
 
 // Texture id
 extern int textureID;
+
+
+// SCANCODE MANAGER
+
+extern Uint8 sm_scancodes[MAX_SCANCODES];
+extern Uint8 sm_oldScancodes[MAX_SCANCODES];
 
 // DELTA TIME
 
@@ -107,7 +113,7 @@ typedef struct Music {
 
 typedef struct Texture {
     SDL_Texture* texture;
-    int width, height;
+    float width, height;
     int id;
 } Texture;
 
@@ -128,8 +134,8 @@ typedef struct TextFont {
 
 typedef struct Text {
     SDL_Texture* tex;
-    int width;
-    int height;
+    float width;
+    float height;
 } Text;
 
 
@@ -137,12 +143,12 @@ typedef struct Text {
 
 // Rectangle shape
 typedef struct Rectangle {
-    int x, y, width, height;
+    float x, y, width, height;
 } Rectangle;
 
 // Circle shape
 typedef struct Circle {
-    int x, y, radius;
+    float x, y, radius;
 } Circle;
 
 
@@ -189,8 +195,14 @@ void Err(const char* format, ...);
 int NewWindow(Window* window, const char* title, int width, int height, int fps);
 int NewWindowEx(Window* window, SDL_Window* sdlW, SDL_Renderer* sdlR, SDL_Event* sdlE);
 
-// Checks if the window is open
-bool WindowIsOpen(Window* win);
+// Fetch events
+int FetchEvents(Window* win);
+
+// Check if event is
+bool IsEvent(Window* win, int type);
+
+// Get event
+SDL_Event* GetEvent(Window* win);
 
 // Destroys a window
 void DestroyWindow(Window* win);
@@ -207,10 +219,10 @@ double GetDeltaTime();
 // CAMERA RELATED FUNCTIONS
 
 // Gets position relative to the camera
-Vector2i GetCameraRelativePosition(int x, int y);
+Vector2f GetCameraRelativePosition(float x, float y);
 
 // Gets size based on the camera zoom, Returns as-is if failed
-Vector2i GetCameraRelativeSize(int w, int h);
+Vector2f GetCameraRelativeSize(float w, float h);
 
 // Enables camera usage
 void EnableCamera();
@@ -242,25 +254,25 @@ void RenderLinesRect(Window* win, Rectangle rec, Color c);
 void RenderFillCircle(Window* win, Circle circle, Color c);
 
 // Draws a point
-void RenderDrawPoint(Window* win, int x, int y, Color c);
+void RenderDrawPoint(Window* win, float x, float y, Color c);
 
 // Draws a line between two points
-void RenderDrawLine(Window* win, Vector2i start, Vector2i end, Color c);
+void RenderDrawLine(Window* win, Vector2f start, Vector2f end, Color c);
 
 // Draws a entire texture
-void RenderDrawTexture(Window* win, int x, int y, Texture* texture);
+void RenderDrawTexture(Window* win, float x, float y, Texture* texture);
 
 // Draw a cutout
-void RenderDrawTextureEx(Window* win, Vector2i pos, Texture* texture, Rectangle cutout);
+void RenderDrawTextureEx(Window* win, Vector2f pos, Texture* texture, Rectangle cutout);
 
 // Draw a cutout + more
-void RenderDrawTexturePro(Window* win, Vector2i pos, Texture* texture, Rectangle cutout, Vector2i origin, int angle, SDL_RendererFlip flip);
+void RenderDrawTexturePro(Window* win, Vector2f pos, Texture* texture, Rectangle cutout, Vector2f origin, int angle, SDL_RendererFlip flip);
 
 // Draw a spritesheet
-void RenderDrawSpritesheet(Window* win, int x, int y, Spritesheet* sheet);
+void RenderDrawSpritesheet(Window* win, float x, float y, Spritesheet* sheet);
 
 // Draw text
-void RenderDrawText(Window* win, Text* text, int x, int y);
+void RenderDrawText(Window* win, Text* text, float x, float y);
 
 // Presents the rendered frame
 void RenderShow(Window* win);
@@ -270,16 +282,16 @@ void RenderShow(Window* win);
 
 
 // check rectangle to rectangle collision
-bool CheckCollisionAABB(int x1, int y1, int w1, int h1,
-    int x2, int y2, int w2, int h2);
+bool CheckCollisionAABB(float x1, float y1, float w1, float h1,
+    float x2, float y2, float w2, float h2);
 
 // check circle to ectangle collision
-bool CheckCollisionCircleRec(int x1, int y1, int r1, int x2, int y2, int w2, int h2);
+bool CheckCollisionCircleRec(float x1, float y1, float r1, float x2, float y2, float w2, float h2);
 
 // INPUT-RELATED FUNCTIONS
 
-extern Vector2i mousePosition;
-extern Vector2i mouseScroll;
+extern Vector2f mousePosition;
+extern Vector2f mouseScroll;
 
 // Gets the current scancode from input
 SDL_Scancode GetScancode(Window* win);
@@ -287,8 +299,14 @@ SDL_Scancode GetScancode(Window* win);
 // Gets the current keycode from input
 SDL_Keycode GetKeycode(Window* win);
 
-// Returns whether that key was pressed
-bool IsKeyPressed(Window* win, SDL_Keycode keycode);
+// Returns whether key wasn't pressed but is pressed now
+bool IsKeyJustPressed(SDL_Keycode keycode);
+
+// Returns whether the key is just released
+bool IsKeyJustReleased(SDL_Keycode keycode);
+
+// Returns whether the key was held
+bool IsKeyHeld(SDL_Keycode keycode);
 
 // Returns whether that mouse button was pressed
 bool IsMousePressed(Window* win, Uint8 button);
@@ -304,8 +322,8 @@ int InitializeImageSubsystemForPNG();
 int InitializeImageSubsystemForJPEG();
 
 // returns 1 if failed
-int NewTexture(Texture* tex, Window* win, const char* filePath, int width, int height);
-int NewBitmapTexture(Texture* tex, Window* win, const char* filePath, int width, int height);
+int NewTexture(Texture* tex, Window* win, const char* filePath, float width, float height);
+int NewBitmapTexture(Texture* tex, Window* win, const char* filePath, float width, float height);
 
 Rectangle GetRectangleFromTexture(Texture* texture);
 
@@ -403,6 +421,19 @@ void UpdateTimer(Timer* timer);
 // Returns elapsed time
 float GetElapsed(Timer* timer);
 
+
+// MATH RELATED FUNCS
+
+Vector2f GetMomentum(Vector2f velocity, float mass);
+float GetKineticEnergy(Vector2f velocity, float mass);
+Vector2f GetForce(Vector2f acceleration, float mass);
+Vector2f GetDrag(Vector2f velocity, float dragCoefficient);
+
+
+// SCANCODE RELATED
+
+void UpdateScancodes();
+void CopyScancodesToOld();
 
 #ifdef __cplusplus
 }
