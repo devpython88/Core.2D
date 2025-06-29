@@ -233,4 +233,4 @@ Collisiion:
 
 ## Error handling
 Most functions in core return `NULL` or `1` on fail.
-But to get the actual error message, Use the `GetLastError()` function or the `GetAllErrors()` function.
+But to get the actual error message, Use the `GetCoreError()` function or the `GetAllErrors()` function.

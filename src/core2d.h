@@ -46,7 +46,7 @@ extern int count;
 
 
 void PushError(const char* format, ...);
-char* GetLastError();
+char* GetCoreError();
 char** GetAllErrors();
 
 

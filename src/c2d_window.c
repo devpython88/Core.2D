@@ -21,7 +21,7 @@ void PushError(const char *format, ...)
     if (errors == NULL) return;
 
     // allocate TEMP space for a new string
-    char** tmp = (char**)realloc(errors, sizeof(errors) + sizeof(char*));
+    char** tmp = (char**)realloc(errors, (count + 1) * sizeof(errors));
 
     // handle error
     if (tmp == NULL){
@@ -29,21 +29,30 @@ void PushError(const char *format, ...)
         return;
     }
 
-    // Format the string
-
     char* formattedString;
 
+    // Format the string
     va_list args;
     va_start(args, format);
-    vsprintf(formattedString, format, args);
+
+    // Get required size
+    int len = vsnprintf(NULL, 0, format, args);
     va_end(args);
+
+    formattedString = malloc(len + 1);  // +1 for null terminator
+    if (!formattedString) return;
+
+    va_start(args, format);
+    vsprintf(formattedString, format, args);  // Safe now
+    va_end(args);
+
 
     tmp[count++] = formattedString;
 
     errors = tmp;
 }
 
-char *GetLastError()
+char *GetCoreError()
 {
     if (errors == NULL) return "";
 
