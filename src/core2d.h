@@ -39,6 +39,18 @@ extern "C" {
 // max scancodes
 #define MAX_SCANCODES SDL_NUM_SCANCODES
 
+
+// ERROR MANAGEMENT
+extern char** errors; // This is a resizable array btw
+extern int count;
+
+
+void PushError(const char* format, ...);
+char* GetLastError();
+char** GetAllErrors();
+
+
+
 // COLORS
 
 // Represents an RGBA color
@@ -190,6 +202,8 @@ void Log(const char* format, ...);
 void Err(const char* format, ...);
 
 // WINDOW-RELATED FUNCTIONS
+
+void InitializeCore2D();
 
 // Creates a new window returns 1 if failed
 int NewWindow(Window* window, const char* title, int width, int height, int fps);
@@ -428,12 +442,31 @@ Vector2f GetMomentum(Vector2f velocity, float mass);
 float GetKineticEnergy(Vector2f velocity, float mass);
 Vector2f GetForce(Vector2f acceleration, float mass);
 Vector2f GetDrag(Vector2f velocity, float dragCoefficient);
-
+int Clamp(int num, int min, int max);
+double ClampEx(double num, double min, double max);
+float ClampF(float num, float min, float max);
+float GetDistance(float startX, float startY, float endX, float endY);
+float GetDistanceV(Vector2f start, Vector2f end);
+float GetArea(float width, float height);
+bool AreLinesColliding(Vector2f a1, Vector2f a2, Vector2f b1, Vector2f b2, Vector2f* output);
+int Minimum(int a, int b);
+float MinimumF(float a, float b);
+double MinimumD(double a, double b);
+int Maximum(int a, int b);
+float MaximumF(float a, float b);
+double MaximumD(double a, double b);
 
 // SCANCODE RELATED
 
 void UpdateScancodes();
 void CopyScancodesToOld();
+
+
+// MOVEMENT-RELATED
+
+void MoveTowards(float* x, float* y, float dstX, float dstY, float speed);
+void MoveTowardsEx(float* x, float* y, float dstX,
+    float dstY, float speed, float stopDistance);
 
 #ifdef __cplusplus
 }

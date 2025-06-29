@@ -5,6 +5,9 @@ Uint8 sm_oldScancodes[MAX_SCANCODES] = { 0 };
 
 int textureID = 0;
 
+char** errors = NULL;
+int count = -1; // -1 so when we push it auto becomes 0
+
 Uint64 TIME_NOW = 0;
 Uint64 TIME_LAST = 0;
 
@@ -13,6 +16,44 @@ Vector2f mouseScroll = { 0, 0 };
 
 // Array of default colors, indexed by color enum
 
+void PushError(const char *format, ...)
+{
+    if (errors == NULL) return;
+
+    // allocate TEMP space for a new string
+    char** tmp = (char**)realloc(errors, sizeof(errors) + sizeof(char*));
+
+    // handle error
+    if (tmp == NULL){
+        Err("Could not push string to errors array.");
+        return;
+    }
+
+    // Format the string
+
+    char* formattedString;
+
+    va_list args;
+    va_start(args, format);
+    vsprintf(formattedString, format, args);
+    va_end(args);
+
+    tmp[count++] = formattedString;
+
+    errors = tmp;
+}
+
+char *GetLastError()
+{
+    if (errors == NULL) return "";
+
+    return errors[count];
+}
+
+char **GetAllErrors()
+{
+    return errors;
+}
 
 // Logging function with printf-style formatting
 void Log(const char *format, ...)
@@ -40,6 +81,12 @@ void Err(const char *format, ...)
     printf("\n");  // optional newline
 }
 
+void InitializeCore2D()
+{
+    errors = (char**)malloc(sizeof(char*));
+    errors[0] = NULL;
+}
+
 // Create and initialize a new window and renderer
 int NewWindow(Window* window, const char *title, int width, int height, int fps)
 {
@@ -47,6 +94,7 @@ int NewWindow(Window* window, const char *title, int width, int height, int fps)
     Log("Initializing SDL...");
     if (SDL_Init(SDL_INIT_VIDEO) != 0){
         Err("Failed to initialize SDL! Abort.");
+        PushError("Failed to initialize SDL! Abort.");
         Log("Error message: %s", SDL_GetError());
         return 1;
     }
@@ -55,6 +103,7 @@ int NewWindow(Window* window, const char *title, int width, int height, int fps)
     SDL_Window* swindow = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN);
     if (!window){
         Err("Failed to initialize window! Abort.");
+        PushError("Failed to initialize window! Abort.");
         Log("Error message: %s", SDL_GetError());
         return 1;
     }
@@ -62,6 +111,7 @@ int NewWindow(Window* window, const char *title, int width, int height, int fps)
     SDL_Renderer* renderer = SDL_CreateRenderer(swindow, 0, SDL_RENDERER_ACCELERATED);
     if (!renderer){
         Err("Failed to intialize renderer! Abort.");
+        PushError("Failed to intialize renderer! Abort.");
         Log("Error message: %s", SDL_GetError());
         SDL_DestroyWindow(swindow);
         return 1;
@@ -82,6 +132,7 @@ int NewWindow(Window* window, const char *title, int width, int height, int fps)
     
     if (cam == NULL){
         Err("Failed to initialize core.2d camera!");
+        PushError("Failed to initialize core.2d camera!");
         SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(swindow);
         return 1;
@@ -180,6 +231,7 @@ void RenderFill(Window *win, Color color)
 
     if (currentCamera == NULL){
         Err("No camera found, Aborting to avoid worst-case-scenarios.");
+        PushError("No camera found, Aborting to avoid worst-case-scenarios.");
         DestroyWindow(win);
         Quit();
         exit(1);
@@ -381,4 +433,29 @@ void CopyScancodesToOld()
     for (int i = 0; i < MAX_SCANCODES; i++){
         sm_oldScancodes[i] = sm_scancodes[i];
     }
+}
+
+
+void MoveTowards(float *x, float *y, float dstX, float dstY, float speed)
+{
+    float stop = MinimumF(1.0f, speed);
+    MoveTowardsEx(x, y, dstX, dstY, speed, stop);
+}
+
+void MoveTowardsEx(float *x, float *y, float dstX, float dstY, float speed, float stopDistance)
+{
+    float distance = GetDistance(*x, *y, dstX, dstY);
+
+    if (distance < stopDistance) return;
+
+    float deltaX = 0.0f;
+    float deltaY = 0.0f;
+
+    if (*x < dstX) deltaX += speed;
+    if (*y < dstY) deltaY += speed;
+    if (*x > dstX) deltaX -= speed;
+    if (*y > dstY) deltaY -= speed;
+
+    *x += deltaX;
+    *y += deltaY;
 }

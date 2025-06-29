@@ -13,6 +13,7 @@ int NewTextFont(TextFont* font, const char *path, int fontSize)
 
     if (tmpFont == NULL){
         Err("Failed to load font: %s", path);
+        PushError("Failed to load font: %s", path);
         Log("Error message: %s", TTF_GetError());
         return 1;
     }
@@ -30,6 +31,7 @@ int NewTextEx(Text* out, Window *win, TextFont *font, const char *text, Color co
 {
     if (font == NULL){
         Err("Font provided was null.");
+        PushError("Font provided was null.");
         return 1;
     }
 
@@ -40,6 +42,7 @@ int NewTextEx(Text* out, Window *win, TextFont *font, const char *text, Color co
 
     if (textSurface == NULL){
         Err("Failed to render text '%s'.", text);
+        PushError("Failed to render text '%s'.", text);
         Log("Error message: %s", TTF_GetError);
         return 1;
     }

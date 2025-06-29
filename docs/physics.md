@@ -57,3 +57,17 @@ Vector2f dragForce = GetDrag(velocity, dragCoef);
 Vector2f momentum = GetMomentum(velocity, mass);
 float energy = GetKineticEnergy(velocity, mass);
 ```
+
+
+
+## Paths
+No this is not pathfinding.
+It's just functions that allow you to constantly move a position towards another position.
+
+`void MoveTowards(float* x, float* y, float dstX, float dstY, float speed)`:
+- Moves the `x` and `y` pointers towards the `dstX` and `dstY` by speed 
+
+`void MoveTowardsEx(float* x, float* y, float dstX, float dstY, float speed, float stopDistance)`:
+- Same as above but you can provide a stop distance which makes it so
+- the object stops moving towards the target when its between that distance
+

@@ -227,3 +227,10 @@ Collisiion:
 `bool CheckCollisionAABB(int x1, int y1, int w1, int h1, int x2, int y2, int w2, int h2)`: check bounding box collision
 
 `bool CheckCollisionCircleRec(int x1, int y1, int r1, int x2, int y2, int w2, int h2)`: check circle rec collision
+
+
+
+
+## Error handling
+Most functions in core return `NULL` or `1` on fail.
+But to get the actual error message, Use the `GetLastError()` function or the `GetAllErrors()` function.
