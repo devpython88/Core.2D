@@ -2,6 +2,8 @@
 #include <string>
 
 int main() {
+    InitializeCore2D();
+    
     Window win;
     NewWindow(&win, "Test", 640, 480, 60);
 
@@ -34,21 +36,24 @@ int main() {
             start2.x -= 2.5f;
         }
         
+        // set normal posiiton
         end1 = { 100.0f, 50.0f };
     
         AreLinesColliding(
             start1, end1, start2, end2,
             &end1
         );
-
-        // This is when the key is held
+        // set end to collision point
 
         RenderFill(&win, WHITE);
+
+        // draw lines
+        RenderDrawLine(&win, start1, end1, RED);
+        RenderDrawLine(&win, start2, end2, RED);
+
         // RenderFillRect(&win, rec, RED);
         // RenderFillRect(&win, rec2, BLUE);
 
-        RenderDrawLine(&win, start1, end1, RED);
-        RenderDrawLine(&win, start2, end2, RED);
         RenderShow(&win);
     }
 
@@ -56,3 +61,4 @@ int main() {
     Quit();
     return 0;
 }
+

@@ -142,6 +142,8 @@ If you want to integrate core into your SDL2 project. But don't know what to do 
 Well, to make a window by using your existing SDL2 variables, Use `NewWindowEx`
 
 ```cpp
+InitializeCore2D(); // Only call when you need error handling
+
 Window win;
 int r = NewWindowEx(&win, sdlWindow, sdlRenderer, sdlEvent) // make sure all are pointers or just add `&`
 
@@ -232,5 +234,7 @@ Collisiion:
 
 
 ## Error handling
+This is only available if you called `InitializeCore2D` at the begin of your game program.
+
 Most functions in core return `NULL` or `1` on fail.
 But to get the actual error message, Use the `GetCoreError()` function or the `GetAllErrors()` function.
